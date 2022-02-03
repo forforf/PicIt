@@ -14,6 +14,12 @@
 		D74E270927AC2F1700992242 /* PicItTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E270827AC2F1700992242 /* PicItTests.swift */; };
 		D74E271327AC2F1700992242 /* PicItUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E271227AC2F1700992242 /* PicItUITests.swift */; };
 		D74E271527AC2F1700992242 /* PicItUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E271427AC2F1700992242 /* PicItUITestsLaunchTests.swift */; };
+		D74E272227AC2F7C00992242 /* CameraService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E272127AC2F7C00992242 /* CameraService.swift */; };
+		D74E272427AC2FC100992242 /* CameraService+Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E272327AC2FC100992242 /* CameraService+Enums.swift */; };
+		D74E272627AC2FE900992242 /* CameraService+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E272527AC2FE900992242 /* CameraService+Extensions.swift */; };
+		D74E272827AC301900992242 /* ImageResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E272727AC301900992242 /* ImageResizer.swift */; };
+		D74E272A27AC304400992242 /* PhotoCaptureProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E272927AC304400992242 /* PhotoCaptureProcessor.swift */; };
+		D74E272E27AC30C700992242 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E272D27AC30C700992242 /* CameraPreview.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +50,12 @@
 		D74E270E27AC2F1700992242 /* PicItUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PicItUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D74E271227AC2F1700992242 /* PicItUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicItUITests.swift; sourceTree = "<group>"; };
 		D74E271427AC2F1700992242 /* PicItUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicItUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		D74E272127AC2F7C00992242 /* CameraService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraService.swift; sourceTree = "<group>"; };
+		D74E272327AC2FC100992242 /* CameraService+Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraService+Enums.swift"; sourceTree = "<group>"; };
+		D74E272527AC2FE900992242 /* CameraService+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraService+Extensions.swift"; sourceTree = "<group>"; };
+		D74E272727AC301900992242 /* ImageResizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageResizer.swift; sourceTree = "<group>"; };
+		D74E272927AC304400992242 /* PhotoCaptureProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCaptureProcessor.swift; sourceTree = "<group>"; };
+		D74E272D27AC30C700992242 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +110,12 @@
 				D74E26F927AC2F1600992242 /* ContentView.swift */,
 				D74E26FB27AC2F1700992242 /* Assets.xcassets */,
 				D74E26FD27AC2F1700992242 /* Preview Content */,
+				D74E272127AC2F7C00992242 /* CameraService.swift */,
+				D74E272327AC2FC100992242 /* CameraService+Enums.swift */,
+				D74E272527AC2FE900992242 /* CameraService+Extensions.swift */,
+				D74E272727AC301900992242 /* ImageResizer.swift */,
+				D74E272927AC304400992242 /* PhotoCaptureProcessor.swift */,
+				D74E272D27AC30C700992242 /* CameraPreview.swift */,
 			);
 			path = PicIt;
 			sourceTree = "<group>";
@@ -258,7 +276,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				D74E26FA27AC2F1600992242 /* ContentView.swift in Sources */,
+				D74E272E27AC30C700992242 /* CameraPreview.swift in Sources */,
+				D74E272427AC2FC100992242 /* CameraService+Enums.swift in Sources */,
 				D74E26F827AC2F1600992242 /* PicItApp.swift in Sources */,
+				D74E272227AC2F7C00992242 /* CameraService.swift in Sources */,
+				D74E272A27AC304400992242 /* PhotoCaptureProcessor.swift in Sources */,
+				D74E272827AC301900992242 /* ImageResizer.swift in Sources */,
+				D74E272627AC2FE900992242 /* CameraService+Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -422,6 +446,8 @@
 				DEVELOPMENT_TEAM = U473J2NE3B;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "PicIt needs access to your camera to capture photos and videos";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "PicIt saves to your photo library";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -451,6 +477,8 @@
 				DEVELOPMENT_TEAM = U473J2NE3B;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "PicIt needs access to your camera to capture photos and videos";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "PicIt saves to your photo library";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
