@@ -22,7 +22,9 @@ struct CameraView: View {
     
     private var buttonText: String {
         get {
+            print("UI ->")
             let t = timer.timeRemaining(timerInc)
+            print("-> UI")
             let displayTime = t < 0.0 ? "" : String(format:"%.2f", t)
             return displayTime
         }
@@ -46,6 +48,7 @@ struct CameraView: View {
         })
 
             .onReceive(timer.publisher, perform: { time in
+                print("Received Timer \(time.timeIntervalSince1970): Time Remaining: \(timer.timeRemaining(timerInc))")
                 if timer.timeRemaining(timerInc) > 0 {
                     print(timerInc)
                     buttonColor = .yellow
@@ -54,6 +57,7 @@ struct CameraView: View {
                         // Take Picture
                         model.capturePhoto()
                         buttonColor = .green
+                        timer.stopTimer()
                     }
                 } else {
                     print("else \(timerInc)")
@@ -66,6 +70,7 @@ struct CameraView: View {
                   case .background:
                       timer.stopTimer()
                   case .active:
+                      buttonColor = .white
                       timerInc = 0
                       if timer.state == .stopped {
                           timer.restartTimer()

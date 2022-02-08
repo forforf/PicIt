@@ -8,27 +8,35 @@
 	<array>
 		<dict>
 			<key>Type</key>
-			<string>PSSliderSpecifier</string>
+			<string>PSMultiValueSpecifier</string>
+			<key>Titles</key>
+			<array>
+				<string>Immediate</string>
+				<string>1 Second</string>
+				<string>2 Seconds</string>
+				<string>3 Seconds</string>
+				<string>5 Seconds</string>
+				<string>10 Seconds</string>
+				<string>15 Seconds</string>
+				<string>20 Seconds</string>
+			</array>
+			<key>Title</key>
+			<string>Timer Delay Settings</string>
 			<key>Key</key>
 			<string>PICIT_DELAY</string>
 			<key>DefaultValue</key>
-			<integer>3</integer>
-			<key>MinimumValue</key>
-			<integer>0</integer>
-			<key>MaximumValue</key>
-			<integer>10</integer>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSTextFieldSpecifier</string>
-			<key>KeyboardType</key>
-			<string>NumberPad</string>
-			<key>Key</key>
-			<string>PICIT_COUNT</string>
-			<key>DefaultValue</key>
-			<integer>1</integer>
-			<key>Title</key>
-			<string>Number of Intervals</string>
+			<integer>4</integer>
+			<key>Values</key>
+			<array>
+				<string>0</string>
+				<string>1</string>
+				<string>2</string>
+				<string>3</string>
+				<string>5</string>
+				<string>10</string>
+				<integer>15</integer>
+				<integer>20</integer>
+			</array>
 		</dict>
 	</array>
 </dict>

@@ -469,6 +469,9 @@ public class CameraService {
                 self.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = photoCaptureProcessor
                 self.photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureProcessor)
             }
+        } else {
+            // TODO: Replace with proper error handling
+            print("Setup Failed configuration")
         }
     }
 }

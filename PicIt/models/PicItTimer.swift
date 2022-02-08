@@ -20,18 +20,25 @@ class PicItTimer {
     let delay: Double
     let interval: Double
     let tolerance: Double
-    var publisher: Timer.TimerPublisher
-    var cancellable: AnyCancellable?
+    lazy var publisher = Timer.TimerPublisher(
+        interval: interval,
+        tolerance: tolerance,
+        runLoop: .main,
+        mode: .common
+    ).autoconnect()
+//    var cancellable: AnyCancellable?
     var state: PicItTimerState
     
-    static private func startTimer(interval: Double, tolerance: Double) -> Timer.TimerPublisher {
-        return Timer.TimerPublisher(
-            interval: interval,
-            tolerance: tolerance,
-            runLoop: .main,
-            mode: .common
-        )
-    }
+//    lazy private var timerPublisher: Timer.TimerPublisher
+    
+//    static private func startTimer(interval: Double, tolerance: Double) -> Timer.TimerPublisher {
+//        return Timer.TimerPublisher(
+//            interval: interval,
+//            tolerance: tolerance,
+//            runLoop: .main,
+//            mode: .common
+//        )
+//    }
 
     init(
         delay: Double,
@@ -41,28 +48,44 @@ class PicItTimer {
             self.delay = delay
             self.interval = interval
             self.tolerance = tolerance
-            self.publisher = Self.startTimer(interval: interval, tolerance: tolerance)
+//            self.publisher = Timer.TimerPublisher(
+//                interval: interval,
+//                tolerance: tolerance,
+//                runLoop: .main,
+//                mode: .common
+//            )
+//            self.publisher = Self.startTimer(interval: interval, tolerance: tolerance)
             self.state = .started
-            self.cancellable = publisher.connect() as? AnyCancellable
+//            self.cancellable = publisher.connect() as? AnyCancellable
         }
 
     deinit {
-        self.cancellable?.cancel()
+//        self.cancellable?.cancel()
+        self.publisher.upstream.connect().cancel()
         self.state = .stopped
     }
     
     func stopTimer() {
         print("Stopping Timmer")
-        self.cancellable?.cancel()
+        self.publisher.upstream.connect().cancel()
+//        self.cancellable?.cancel()
+        
         self.state = .stopped
         print("Stopped Timer")
     }
     
     func restartTimer() {
         print("Restarting Timer")
+    
         if self.state != .started {
-            self.publisher = Self.startTimer(interval: self.interval, tolerance: self.tolerance)
-            self.cancellable = publisher.connect() as? AnyCancellable
+            self.publisher = Timer.TimerPublisher(
+                interval: interval,
+                tolerance: tolerance,
+                runLoop: .main,
+                mode: .common
+            ).autoconnect()
+//            self.publisher = Self.startTimer(interval: self.interval, tolerance: self.tolerance)
+//            self.cancellable = publisher.connect() as? AnyCancellable
             self.state = .started
             print("Restarted Timer")
         } else {
