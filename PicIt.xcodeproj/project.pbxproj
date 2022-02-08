@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		D74E26F827AC2F1600992242 /* PicItApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E26F727AC2F1600992242 /* PicItApp.swift */; };
 		D74E26FA27AC2F1600992242 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E26F927AC2F1600992242 /* CameraView.swift */; };
-		D74E26FC27AC2F1700992242 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D74E26FB27AC2F1700992242 /* Assets.xcassets */; };
 		D74E26FF27AC2F1700992242 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D74E26FE27AC2F1700992242 /* Preview Assets.xcassets */; };
 		D74E270927AC2F1700992242 /* PicItTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E270827AC2F1700992242 /* PicItTests.swift */; };
 		D74E271327AC2F1700992242 /* PicItUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E271227AC2F1700992242 /* PicItUITests.swift */; };
@@ -25,6 +24,7 @@
 		D74E273527AF18D100992242 /* PicItTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E273427AF18D100992242 /* PicItTimer.swift */; };
 		D74E273727AF197200992242 /* PicItSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E273627AF197200992242 /* PicItSettings.swift */; };
 		D74E273927AF2D6700992242 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E273827AF2D6700992242 /* ContentView.swift */; };
+		D74E273D27B29FBC00992242 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D74E273C27B29FBC00992242 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,7 +48,6 @@
 		D74E26F427AC2F1600992242 /* PicIt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PicIt.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D74E26F727AC2F1600992242 /* PicItApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicItApp.swift; sourceTree = "<group>"; };
 		D74E26F927AC2F1600992242 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
-		D74E26FB27AC2F1700992242 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D74E26FE27AC2F1700992242 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		D74E270427AC2F1700992242 /* PicItTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PicItTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D74E270827AC2F1700992242 /* PicItTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicItTests.swift; sourceTree = "<group>"; };
@@ -66,6 +65,7 @@
 		D74E273427AF18D100992242 /* PicItTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicItTimer.swift; sourceTree = "<group>"; };
 		D74E273627AF197200992242 /* PicItSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicItSettings.swift; sourceTree = "<group>"; };
 		D74E273827AF2D6700992242 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		D74E273C27B29FBC00992242 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,11 +117,11 @@
 		D74E26F627AC2F1600992242 /* PicIt */ = {
 			isa = PBXGroup;
 			children = (
+				D74E273C27B29FBC00992242 /* Assets.xcassets */,
 				D74E273327AF189B00992242 /* models */,
 				D74E26F727AC2F1600992242 /* PicItApp.swift */,
 				D74E273827AF2D6700992242 /* ContentView.swift */,
 				D74E26F927AC2F1600992242 /* CameraView.swift */,
-				D74E26FB27AC2F1700992242 /* Assets.xcassets */,
 				D74E26FD27AC2F1700992242 /* Preview Content */,
 				D74E272127AC2F7C00992242 /* CameraService.swift */,
 				D74E272327AC2FC100992242 /* CameraService+Enums.swift */,
@@ -273,8 +273,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				D74E26FF27AC2F1700992242 /* Preview Assets.xcassets in Resources */,
+				D74E273D27B29FBC00992242 /* Assets.xcassets in Resources */,
 				D74E273227AC6E1C00992242 /* Settings.bundle in Resources */,
-				D74E26FC27AC2F1700992242 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
