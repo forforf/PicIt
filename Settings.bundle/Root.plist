@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>StringsTable</key>
+	<string>Root</string>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Titles</key>
+			<array>
+				<string>Immediate</string>
+				<string>1 Second</string>
+				<string>2 Seconds</string>
+				<string>3 Seconds</string>
+				<string>5 Seconds</string>
+				<string>10 Seconds</string>
+				<string>15 Seconds</string>
+				<string>20 Seconds</string>
+			</array>
+			<key>Title</key>
+			<string>Timer Delay Settings</string>
+			<key>Key</key>
+			<string>PICIT_DELAY</string>
+			<key>DefaultValue</key>
+			<integer>4</integer>
+			<key>Values</key>
+			<array>
+				<string>0</string>
+				<string>1</string>
+				<string>2</string>
+				<string>3</string>
+				<string>5</string>
+				<string>10</string>
+				<integer>15</integer>
+				<integer>20</integer>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

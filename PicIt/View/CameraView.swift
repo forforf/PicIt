@@ -4,138 +4,43 @@
 
 import SwiftUI
 import Combine
-import AVFoundation
-
-final class CameraModel: ObservableObject {
-    private let service = CameraService()
-    
-    @Published var photo: Photo!
-    
-    @Published var showAlertError = false
-    
-    @Published var isFlashOn = false
-    
-    @Published var willCapturePhoto = false
-    
-    var alertError: AlertError!
-    
-    var session: AVCaptureSession
-    
-    private var subscriptions = Set<AnyCancellable>()
-    
-    init() {
-        self.session = service.session
-        
-        service.$photo.sink { [weak self] (photo) in
-            guard let pic = photo else { return }
-            self?.photo = pic
-        }
-        .store(in: &self.subscriptions)
-        
-        service.$shouldShowAlertView.sink { [weak self] (val) in
-            self?.alertError = self?.service.alertError
-            self?.showAlertError = val
-        }
-        .store(in: &self.subscriptions)
-        
-        service.$flashMode.sink { [weak self] (mode) in
-            self?.isFlashOn = mode == .on
-        }
-        .store(in: &self.subscriptions)
-        
-        service.$willCapturePhoto.sink { [weak self] (val) in
-            self?.willCapturePhoto = val
-        }
-        .store(in: &self.subscriptions)
-    }
-    
-    func configure() {
-        service.checkForPermissions()
-        service.configure()
-    }
-    
-    func capturePhoto() {
-        service.capturePhoto()
-    }
-    
-    func flipCamera() {
-        service.changeCamera()
-    }
-    
-    func zoom(with factor: CGFloat) {
-        service.set(zoom: factor)
-    }
-    
-    func switchFlash() {
-        service.flashMode = service.flashMode == .on ? .off : .on
-    }
-    
-    func photoTimer() {
-
-    }
-}
 
 struct CameraView: View {
     @Environment(\.scenePhase) var scenePhase
     
-    private static let timerDefault = 3
     @StateObject var model = CameraModel()
     
     @State var currentZoomFactor: CGFloat = 1.0
-    
-    @State private var timeRemaining = Self.timerDefault
-    private var buttonText: String {
-        get {
-            let displayTime = timeRemaining < 0 ? "" : "\(timeRemaining)"
-            return "\(displayTime)"
-        }
-    }
-    @State private var buttonColor: Color = .white
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @State var countdown: CountdownBase
     
     var captureButton: some View {
         Button(action: {
             model.capturePhoto()
         }, label: {
-            ZStack {
-                Circle()
-                    .foregroundColor(buttonColor)
-                    .frame(width: 80, height: 80, alignment: .center)
-                    .overlay(
-                        Circle()
-                            .stroke(Color.black.opacity(0.8), lineWidth: 2)
-                            .frame(width: 65, height: 65, alignment: .center)
-                    )
-                Text("\(buttonText)")
-            }
-            
+            CountdownView(countdown: countdown)
         })
-
-            .onReceive(timer, perform: { time in
-                if timeRemaining > 0 {
-                    buttonColor = .yellow
-                    timeRemaining -= 1
-                    if timeRemaining == 0 {
-                        model.capturePhoto()
-                        buttonColor = .green
-                    }
-                } else if timeRemaining == 0 {
-                    timeRemaining = -99
-                    buttonColor = .white
+        
+        // countdown can be an "empty", which really should be called disabled.
+        // In which case nothing is ever published, so the on Receive never fires.
+        // TODO: Change "EmptyCountdown" to "CountdownDisabled"
+            .onReceive(countdown.$countdownState, perform: { countdownState in
+                print("Countdown STATE: \(countdownState)")
+                if countdownState == .triggering {
+                    print("TAKING PICTURE")
+                    model.capturePhoto()
                 }
-
             })
+        
             .onChange(of: scenePhase) { newPhase in
-              switch newPhase {
-              case .background:
-                timeRemaining = -99
-              case .active:
-                  timeRemaining = Self.timerDefault
-              case .inactive:
-                  timeRemaining = -99
-              @unknown default:
-                  timeRemaining = -99
-              }
+                print("scenePHase changed to \(newPhase)")
+                switch newPhase {
+                case .background, .inactive:
+                    countdown = EmptyCountdown()
+                case .active:
+                    countdown = countdown.isEmpty() ? Countdown() : countdown
+                @unknown default:
+                    countdown = EmptyCountdown()
+                }
             }
     }
     
@@ -147,7 +52,7 @@ struct CameraView: View {
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 60, height: 60)
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    // .animation(.spring())
+                // .animation(.spring())
                 
             } else {
                 RoundedRectangle(cornerRadius: 10)
@@ -173,6 +78,7 @@ struct CameraView: View {
     var body: some View {
         GeometryReader { reader in
             ZStack {
+                
                 Color.black.edgesIgnoringSafeArea(.all)
                 
                 VStack {
@@ -182,7 +88,7 @@ struct CameraView: View {
                         Image(systemName: model.isFlashOn ? "bolt.fill" : "bolt.slash.fill")
                             .font(.system(size: 20, weight: .medium, design: .default))
                     })
-                    .accentColor(model.isFlashOn ? .yellow : .white)
+                        .accentColor(model.isFlashOn ? .yellow : .white)
                     
                     CameraPreview(session: model.session)
                         .gesture(
@@ -217,7 +123,7 @@ struct CameraView: View {
                                 }
                             }
                         )
-                        .animation(.easeInOut)
+                    // .animation(.easeInOut)
                     
                     
                     HStack {
@@ -234,15 +140,15 @@ struct CameraView: View {
                     }
                     .padding(.horizontal, 20)
                 }
-        
+                
             }
         }
     }
-        
 }
 
-struct ContentView_Previews: PreviewProvider {
+// TODO: Do a View_Preview
+struct CameraView_Previews: PreviewProvider {
     static var previews: some View {
-        CameraView()
+        CameraView(countdown: Countdown())
     }
 }

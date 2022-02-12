@@ -1,6 +1,4 @@
-//
-//  PicIt
-//
+// Source: [SwiftCamera](https://github.com/rorodriguez116/SwiftCamera)
 
 import Foundation
 import Combine
@@ -127,7 +125,7 @@ public class CameraService {
     
     //        MARK: Checks for user's permisions
     public func checkForPermissions() {
-      
+        // Check for permission to take photos
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
             // The user has previously granted access to the camera.
@@ -161,6 +159,37 @@ public class CameraService {
                 self.isCameraButtonDisabled = true
             }
         }
+        
+        // Check for permissions to save photos
+        // TODO: DRY up the repeated actions (identical to actions on Camera authorization
+        switch PHPhotoLibrary.authorizationStatus() {
+        case .authorized:
+            break
+        case .notDetermined:
+            sessionQueue.suspend()
+            PHPhotoLibrary.requestAuthorization( { authStatus in
+                if authStatus != .authorized {
+                    self.setupResult = .notAuthorized
+                }
+                self.sessionQueue.resume()
+            })
+        default:
+            // The user has previously denied access.
+            setupResult = .notAuthorized
+            
+            DispatchQueue.main.async {
+                self.alertError = AlertError(title: "Camera Access", message: "PicIt doesn't have access to use your camera, please update your privacy settings.", primaryButtonTitle: "Settings", secondaryButtonTitle: nil, primaryAction: {
+                        UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!,
+                                                  options: [:], completionHandler: nil)
+                    
+                }, secondaryAction: nil)
+                self.shouldShowAlertView = true
+                self.isCameraUnavailable = true
+                self.isCameraButtonDisabled = true
+            }
+        }
+
+        
     }
     
     //  MARK: Session Management
@@ -469,6 +498,9 @@ public class CameraService {
                 self.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = photoCaptureProcessor
                 self.photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureProcessor)
             }
+        } else {
+            // TODO: Replace with proper error handling
+            print("Setup Failed configuration")
         }
     }
 }
