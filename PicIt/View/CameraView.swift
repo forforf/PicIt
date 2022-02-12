@@ -3,83 +3,44 @@
 //
 
 import SwiftUI
-
-// TODO: Fix the issue where re-running the app has extremely slow behavior. This has something to do with "model.capturePhoto()", as it works fine if that is commented out.
-// it also works fine if the app is discarded and then re-opened.
+import Combine
 
 struct CameraView: View {
-    var timer: PicItTimer
-    
     @Environment(\.scenePhase) var scenePhase
     
     @StateObject var model = CameraModel()
     
     @State var currentZoomFactor: CGFloat = 1.0
-    
-    @State private var buttonColor: Color = .white
-    
-    @State private var timerInc = 0.0
-    
-    private var buttonText: String {
-        get {
-            print("UI ->")
-            let t = timer.timeRemaining(timerInc)
-            print("-> UI")
-            let displayTime = t < 0.0 ? "" : String(format:"%.2f", t)
-            return displayTime
-        }
-    }
+    @State var countdown: CountdownBase
     
     var captureButton: some View {
         Button(action: {
             model.capturePhoto()
         }, label: {
-            ZStack {
-                Circle()
-                    .foregroundColor(buttonColor)
-                    .frame(width: 80, height: 80, alignment: .center)
-                    .overlay(
-                        Circle()
-                            .stroke(Color.black.opacity(0.8), lineWidth: 2)
-                            .frame(width: 65, height: 65, alignment: .center)
-                    )
-                Text("\(buttonText)")
-            }
+            CountdownView(countdown: countdown)
         })
-
-            .onReceive(timer.publisher, perform: { time in
-                print("Received Timer \(time.timeIntervalSince1970): Time Remaining: \(timer.timeRemaining(timerInc))")
-                if timer.timeRemaining(timerInc) > 0 {
-                    print(timerInc)
-                    buttonColor = .yellow
-                    timerInc += timer.interval
-                    if timer.timeRemaining(timerInc) <= 0 {
-                        // Take Picture
-                        model.capturePhoto()
-                        buttonColor = .green
-                        timer.stopTimer()
-                    }
-                } else {
-                    print("else \(timerInc)")
-                    buttonColor = .white
+        
+        // countdown can be an "empty", which really should be called disabled.
+        // In which case nothing is ever published, so the on Receive never fires.
+        // TODO: Change "EmptyCountdown" to "CountdownDisabled"
+            .onReceive(countdown.$countdownState, perform: { countdownState in
+                print("Countdown STATE: \(countdownState)")
+                if countdownState == .triggering {
+                    print("TAKING PICTURE")
+                    model.capturePhoto()
                 }
-
             })
+        
             .onChange(of: scenePhase) { newPhase in
-                  switch newPhase {
-                  case .background:
-                      timer.stopTimer()
-                  case .active:
-                      buttonColor = .white
-                      timerInc = 0
-                      if timer.state == .stopped {
-                          timer.restartTimer()
-                      }
-                  case .inactive:
-                      timer.stopTimer()
-                  @unknown default:
-                      timer.stopTimer()
-              }
+                print("scenePHase changed to \(newPhase)")
+                switch newPhase {
+                case .background, .inactive:
+                    countdown = EmptyCountdown()
+                case .active:
+                    countdown = countdown.isEmpty() ? Countdown() : countdown
+                @unknown default:
+                    countdown = EmptyCountdown()
+                }
             }
     }
     
@@ -91,7 +52,7 @@ struct CameraView: View {
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 60, height: 60)
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    // .animation(.spring())
+                // .animation(.spring())
                 
             } else {
                 RoundedRectangle(cornerRadius: 10)
@@ -117,7 +78,7 @@ struct CameraView: View {
     var body: some View {
         GeometryReader { reader in
             ZStack {
-
+                
                 Color.black.edgesIgnoringSafeArea(.all)
                 
                 VStack {
@@ -127,7 +88,7 @@ struct CameraView: View {
                         Image(systemName: model.isFlashOn ? "bolt.fill" : "bolt.slash.fill")
                             .font(.system(size: 20, weight: .medium, design: .default))
                     })
-                    .accentColor(model.isFlashOn ? .yellow : .white)
+                        .accentColor(model.isFlashOn ? .yellow : .white)
                     
                     CameraPreview(session: model.session)
                         .gesture(
@@ -162,7 +123,7 @@ struct CameraView: View {
                                 }
                             }
                         )
-                        // .animation(.easeInOut)
+                    // .animation(.easeInOut)
                     
                     
                     HStack {
@@ -179,16 +140,15 @@ struct CameraView: View {
                     }
                     .padding(.horizontal, 20)
                 }
-        
+                
             }
         }
     }
-        
 }
 
-//TODO: Do a View_Preview
-//struct ContentView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        CameraView()
-//    }
-//}
+// TODO: Do a View_Preview
+struct CameraView_Previews: PreviewProvider {
+    static var previews: some View {
+        CameraView(countdown: Countdown())
+    }
+}

@@ -1,6 +1,4 @@
-//
-//  PicIt
-//
+// Source: [SwiftCamera](https://github.com/rorodriguez116/SwiftCamera)
 
 import Foundation
 
