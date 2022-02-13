@@ -22,16 +22,13 @@ struct CountdownView: View {
                 )
             Text(countdownText)
         }
-        .onReceive(countdown.$time, perform: { t in
-            print("CV CLOCK time: \(t)")
-            countdownText = t > 0 ? String(format: "%.0f", t) : "0"
+        .onReceive(countdown.$time, perform: { countdown in
+            countdownText = countdown > 0 ? String(format: "%.0f", countdown) : "0"
         })
         
         // countdown can be an "empty", which really should be called disabled.
         // In which case nothing is ever published, so the on Receive never fires.
-        // TODO: Change "EmptyCountdown" to "CountdownDisabled"
         .onReceive(countdown.$countdownState, perform: { countdownState in
-            print("CV Countdown STATE: \(countdownState)")
             switch countdownState {
             case .notStarted:
                 buttonColor = .gray

@@ -11,40 +11,46 @@ enum CountdownState {
     case complete
 }
 
+// We use inheritance rather than protocol because protocol doesn't support @Published yet.
+// This allows us to swap out an countdown object that is disabled vs one that is enabled
 class CountdownBase: ObservableObject {
     @Published var countdownState: CountdownState = .notStarted
     @Published var time = 0.0
     @Published var started: TimeInterval = Date().timeIntervalSince1970
     
-    func isEmpty() -> Bool {
+    // I'm not entirely happy with having a function to express the state of the class.
+    // It's primary purpose at the moment is to determine if an countdown implementation
+    // should be re-initialized (i.e. restart the timer).
+    // To explain further. An alternate approach (that didn't work out) would be to use an
+    // optional (i.e. `Countdown?`. And set it to nil when we want to stop the timer, and
+    // to restart the timer, we check if it's nil, and recreate it if it is. For example:
+    // let countdown == countdown ?? Countdown() (remember the type is Countdown?)
+    // The problem with that approach is that `nil` is not a publisher, so `onReceive` blows up
+    // So we get around that by having a `DisabledCounter` that is a valid publisher, it just
+    // doesn't publish anything. But then we still needed a check to see if the timer needed
+    // replacing on restart ... so we ended up with this function.
+    func isDisabled() -> Bool {
         return true
     }
 }
 
-class EmptyCountdown: CountdownBase {
-    
-}
+// Concrete class for the disabled countdown. Keeps CountdownBase abstract
+// while also having a more expressive name
+class DisabledCountdown: CountdownBase {}
 
+// The main Countdown class that will actually countdown.
 class Countdown: CountdownBase {
+    // Use the User Setting for the delay value.
     @AppStorage(PicItSetting.delay.key) var delay: Double = PicItSetting.delay.value
     
-    override func isEmpty() -> Bool {
+    override func isDisabled() -> Bool {
         return false
     }
-
-//    @Published var time = 0.0
-//
-//    @Published var started: TimeInterval = Date().timeIntervalSince1970
-//    @Published var countdownState: CountdownState = .notStarted
-    
-    //TODO: Store the cancellables
-    
     
     override init() {
         super.init()
-        print("INIT for Countdown")
         let mainTimerPublisher = Timer.publish(
-            every: 1,
+            every: PicItSetting.interval,
             on: .main,
             in: .default
         )
@@ -58,7 +64,7 @@ class Countdown: CountdownBase {
         $started.combineLatest(cancellable)
             .map({ started, time in
                 let elapsedTime =  time.timeIntervalSince1970 - started
-                // countdown value
+                // return the countdown value
                 return self.delay - elapsedTime
             })
             .assign(to: &$time)
@@ -92,147 +98,3 @@ class Countdown: CountdownBase {
             .assign(to: &$countdownState)
     }
 }
-
-//enum PicItTimerState {
-//    case started
-//    case stopped
-//}
-
-
-
-/*
-   delay: How long to wait from the time the timer start until it takes a pciture
-   interval: How often the view should update (mainly for countdown timer updates)
-   tolerance: How far off the interval can be, used internally by the OS to optimize timer performance
- FUTURE:
-   retakes: Number of times to take the picture
-   retakeInterval: Delay between each picture retake
- */
-//class PicItTimer: ObservableObject {
-//    // TODO: See if there is a way to inject this rather than declaring it inside
-//    @AppStorage(PicItSetting.delay.key) var delay: Double = PicItSetting.delay.value
-//
-////    let delay: Double
-//    let interval: Double
-//    let tolerance: Double
-//    @Published var publisher: Publishers.Autoconnect<Timer.TimerPublisher>
-//    @Published private(set) var foo = Date().timeIntervalSince1970
-//    @Published var countdownState: CountdownState = .notStarted
-//
-////    private var countdownStartTime: Date?
-//
-////    lazy var publisher = Timer.TimerPublisher(
-////        interval: interval,
-////        tolerance: tolerance,
-////        runLoop: .main,
-////        mode: .common
-////    ).autoconnect()
-//
-//
-////    private var picitDelay: Double {
-////        return Double(_picitDelay) ?? PicItSetting.delay.value
-////    }
-//
-//
-//    var state: PicItTimerState
-//
-//    init(
-//        delay: Double,
-//        interval: Double,
-//        tolerance: Double) {
-//            self.delay = delay
-//            self.interval = interval
-//            self.tolerance = tolerance
-//
-//            let publisher = Timer.TimerPublisher(
-//                interval: interval,
-//                tolerance: tolerance,
-//                runLoop: .main,
-//                mode: .common
-//            ).autoconnect()
-//
-//            self.publisher = publisher
-//
-//
-////            Timer.publish(
-////                every: 1,
-////                on: .main,
-////                in: .default
-////            )
-////            .autoconnect()
-////            .map(\.timeIntervalSince1970)
-////            .assign(to: &$foo)
-//
-//
-////            foo.sink(
-////                receiveCompletion: { completion in
-////                    print("COMPLETION: \(completion)")
-////                },
-////                receiveValue: { value in
-////                    print("VALUE: \(value)")
-////                }
-////            )
-//
-//
-//
-//
-//
-////            publisher
-////                .map({ output in
-////                    return Double(output.timeIntervalSince1970)
-////                })
-////                .sink( { time in
-////                    $countdown = time.
-////                })
-//            print("INIT called for PicItTimer: \(delay), \(interval), \(tolerance)")
-//            //            self.publisher = Self.startTimer(interval: interval, tolerance: tolerance)
-//            self.state = .started
-//            //            self.cancellable = publisher.connect() as? AnyCancellable
-//        }
-//
-//    convenience init(interval: Double, tolerance: Double) {
-//        let delay = PicItSetting.delay.value
-//        self.init(delay: delay, interval: interval, tolerance: tolerance)
-//    }
-//
-//
-//    deinit {
-////        self.cancellable?.cancel()
-//        self.state = .stopped
-//        self.publisher.upstream.connect().cancel()
-//    }
-//
-//    func stopTimer() {
-//        print("Stopping Timmer")
-//        self.publisher.upstream.connect().cancel()
-////        self.cancellable?.cancel()
-//
-//        self.state = .stopped
-//        print("Stopped Timer")
-//    }
-//
-//    func restartTimer() {
-//        print("Restarting Timer")
-//
-//        if self.state != .started {
-//            self.publisher = Timer.TimerPublisher(
-//                interval: interval,
-//                tolerance: tolerance,
-//                runLoop: .main,
-//                mode: .common
-//            ).autoconnect()
-////            self.publisher = Self.startTimer(interval: self.interval, tolerance: self.tolerance)
-////            self.cancellable = publisher.connect() as? AnyCancellable
-//            self.state = .started
-//            print("Restarted Timer")
-//        } else {
-//            // TODO: Replace print with better handler (maybe closure?)
-//            print("Tried to restart already running timer!!!!!")
-//        }
-//    }
-//
-//    func timeRemaining(_ counter: Double) -> Double{
-//        print("Calcuating time remaining: \(delay - counter), current state: \(self.state)")
-//        return delay - counter
-//    }
-//}

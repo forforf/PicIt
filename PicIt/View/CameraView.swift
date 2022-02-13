@@ -20,26 +20,25 @@ struct CameraView: View {
             CountdownView(countdown: countdown)
         })
         
-        // countdown can be an "empty", which really should be called disabled.
-        // In which case nothing is ever published, so the on Receive never fires.
-        // TODO: Change "EmptyCountdown" to "CountdownDisabled"
+        // countdown can be in a disabled state.
+        // In which case nothing is ever published, so onReceive never fires
             .onReceive(countdown.$countdownState, perform: { countdownState in
-                print("Countdown STATE: \(countdownState)")
+                
+                // Here is where we should do any actions when the countdown is reached
                 if countdownState == .triggering {
-                    print("TAKING PICTURE")
+                    // Take picture
                     model.capturePhoto()
                 }
             })
         
             .onChange(of: scenePhase) { newPhase in
-                print("scenePHase changed to \(newPhase)")
                 switch newPhase {
                 case .background, .inactive:
-                    countdown = EmptyCountdown()
+                    countdown = DisabledCountdown()
                 case .active:
-                    countdown = countdown.isEmpty() ? Countdown() : countdown
+                    countdown = countdown.isDisabled() ? Countdown() : countdown
                 @unknown default:
-                    countdown = EmptyCountdown()
+                    countdown = DisabledCountdown()
                 }
             }
     }
