@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D707D95827BE99FC0021E33E /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D707D95727BE99FC0021E33E /* ShareViewController.swift */; };
 		D74E26F827AC2F1600992242 /* PicItApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E26F727AC2F1600992242 /* PicItApp.swift */; };
 		D74E26FA27AC2F1600992242 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E26F927AC2F1600992242 /* CameraView.swift */; };
 		D74E26FF27AC2F1700992242 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D74E26FE27AC2F1700992242 /* Preview Assets.xcassets */; };
@@ -46,6 +47,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D707D95727BE99FC0021E33E /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		D74E26F427AC2F1600992242 /* PicIt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PicIt.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D74E26F727AC2F1600992242 /* PicItApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicItApp.swift; sourceTree = "<group>"; };
 		D74E26F927AC2F1600992242 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
@@ -105,6 +107,14 @@
 			path = Service;
 			sourceTree = "<group>";
 		};
+		D707D95927BE9CCD0021E33E /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				D707D95727BE99FC0021E33E /* ShareViewController.swift */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
 		D74E26EB27AC2F1600992242 = {
 			isa = PBXGroup;
 			children = (
@@ -131,6 +141,7 @@
 			children = (
 				D74E273E27B86FFA00992242 /* View */,
 				D74E273C27B29FBC00992242 /* Assets.xcassets */,
+				D707D95927BE9CCD0021E33E /* ViewController */,
 				D74E273327AF189B00992242 /* Model */,
 				D74E26F727AC2F1600992242 /* PicItApp.swift */,
 				D707D95227B8742E0021E33E /* Service */,
@@ -329,6 +340,7 @@
 				D74E272827AC301900992242 /* ImageResizer.swift in Sources */,
 				D74E273527AF18D100992242 /* Countdown.swift in Sources */,
 				D74E272627AC2FE900992242 /* CameraService+Extensions.swift in Sources */,
+				D707D95827BE99FC0021E33E /* ShareViewController.swift in Sources */,
 				D74E273727AF197200992242 /* PicItSettings.swift in Sources */,
 				D74E273027AC385F00992242 /* CameraModel.swift in Sources */,
 			);

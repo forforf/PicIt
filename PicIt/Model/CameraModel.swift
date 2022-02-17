@@ -4,6 +4,8 @@ import SwiftUI
 import Combine
 import AVFoundation
 
+typealias PhotoHandler = (_ sharePic: Photo) -> Void
+
 final class CameraModel: ObservableObject {
     private let service = CameraService()
     
@@ -70,5 +72,9 @@ final class CameraModel: ObservableObject {
     
     func photoTimer() {
 
+    }
+    
+    func withPhoto(completion: PhotoHandler) {
+        service.withPhoto(completion: completion)
     }
 }

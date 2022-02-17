@@ -503,4 +503,13 @@ public class CameraService {
             print("Setup Failed configuration")
         }
     }
+    
+    //    MARK: withPhoto. A callback that passes the current photo to the completion closure.
+    
+    /// - Tag: withPhoto
+    public func withPhoto(completion: (Photo) -> Void) {
+        if self.photo != nil {
+            completion(self.photo!)
+        }
+    }
 }

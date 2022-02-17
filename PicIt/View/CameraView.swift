@@ -20,7 +20,7 @@ struct CameraView: View {
             CountdownView(countdown: countdown)
         })
         
-        // countdown can be in a disabled state.
+        // Note that countdown can be in a disabled state.
         // In which case nothing is ever published, so onReceive never fires
             .onReceive(countdown.$countdownState, perform: { countdownState in
                 
@@ -51,6 +51,10 @@ struct CameraView: View {
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 60, height: 60)
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .gesture(TapGesture().onEnded({_ in
+                        print("Tapped Image")
+                        model.withPhoto(completion: ShareViewController.shareCompletion)
+                    }))
                 // .animation(.spring())
                 
             } else {
