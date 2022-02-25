@@ -48,21 +48,26 @@ struct ShareViewController {
     
     }
     
-    // A convenient completion handler, suitable for handling the general case
-    static func shareCompletion(_ photo: Photo) {
-        
-        //TODO: I hate nested ifs, is there a better way?
-        if let image = photo.image {
-            // TODO: Is a Bool the right way to handle success/failure here?
-            if ShareViewController.share(sharePic: image) {
-                print("Called share sheet")
-            } else {
-                print("Failed to call share sheet")
-            }
-            
+    // A convenient handler for sharing a UIImage, suitable for handling the general case
+    static func shareCompletion(_ image: UIImage) {
+        if ShareViewController.share(sharePic: image) {
+            print("Called share sheet")
         } else {
-            print("No image found to share")
+            print("Failed to call share sheet")
         }
+        
+//        //TODO: I hate nested ifs, is there a better way?
+//        if let image = photo.image {
+//            // TODO: Is a Bool the right way to handle success/failure here?
+//            if ShareViewController.share(sharePic: image) {
+//                print("Called share sheet")
+//            } else {
+//                print("Failed to call share sheet")
+//            }
+//
+//        } else {
+//            print("No image found to share")
+//        }
     }
 }
 

@@ -5,6 +5,7 @@
 import SwiftUI
 import Combine
 
+
 struct CameraView: View {
     @Environment(\.scenePhase) var scenePhase
     
@@ -31,38 +32,45 @@ struct CameraView: View {
                 }
             })
         
-            .onChange(of: scenePhase) { newPhase in
-                switch newPhase {
-                case .background, .inactive:
-                    countdown = DisabledCountdown()
-                case .active:
-                    countdown = countdown.isDisabled() ? Countdown() : countdown
-                @unknown default:
-                    countdown = DisabledCountdown()
-                }
-            }
+//            .onChange(of: scenePhase) { newPhase in
+//                switch newPhase {
+//                case .background, .inactive:
+//                    countdown = DisabledCountdown()
+//                case .active:
+//                    countdown = countdown.isDisabled() ? Countdown() : countdown
+//                @unknown default:
+//                    countdown = DisabledCountdown()
+//                }
+//            }
     }
     
     var capturedPhotoThumbnail: some View {
-        Group {
-            if model.photo != nil {
-                Image(uiImage: model.photo.image!)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 60, height: 60)
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    .gesture(TapGesture().onEnded({_ in
-                        print("Tapped Image")
-                        model.withPhoto(completion: ShareViewController.shareCompletion)
-                    }))
-                // .animation(.spring())
-                
-            } else {
-                RoundedRectangle(cornerRadius: 10)
-                    .frame(width: 60, height: 60, alignment: .center)
-                    .foregroundColor(.black)
-            }
-        }
+        ThumbnailView(photo: model.photo, localId: model.photoLocalId, shareAction: {
+            print("Closure onTapAction")
+
+            // TODO move completion to different view
+//            model.withPhoto(completion: ShareViewController.shareCompletion)
+        })
+//        Group {
+//
+//            if model.photo != nil {
+//                Image(uiImage: model.photo.image!)
+//                    .resizable()
+//                    .aspectRatio(contentMode: .fill)
+//                    .frame(width: 60, height: 60)
+//                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+//                    .gesture(TapGesture().onEnded({_ in
+//                        print("Tapped Image")
+//                        model.withPhoto(completion: ShareViewController.shareCompletion)
+//                    }))
+//                // .animation(.spring())
+//
+//            } else {
+//                RoundedRectangle(cornerRadius: 10)
+//                    .frame(width: 60, height: 60, alignment: .center)
+//                    .foregroundColor(.yellow)
+//            }
+//        }
     }
     
     var flipCameraButton: some View {
@@ -144,6 +152,17 @@ struct CameraView: View {
                     .padding(.horizontal, 20)
                 }
                 
+            }
+            .onChange(of: scenePhase) { newPhase in
+                print("newPhase: \(newPhase)")
+                switch newPhase {
+                case .background:
+                    countdown = EmptyCountdown()
+                case .active, .inactive:
+                    countdown = countdown.isEmpty() ? Countdown() : countdown
+                @unknown default:
+                    countdown = EmptyCountdown()
+                }
             }
         }
     }

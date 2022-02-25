@@ -29,23 +29,27 @@ class CountdownBase: ObservableObject {
     // So we get around that by having a `DisabledCounter` that is a valid publisher, it just
     // doesn't publish anything. But then we still needed a check to see if the timer needed
     // replacing on restart ... so we ended up with this function.
-    func isDisabled() -> Bool {
+    // Another approach considered, but rejected was to have a single class, and have
+    // isDisabled control timer actions. Rejected this because it would require conditional checks
+    // throughout the class which would muddy the logic.
+    func isEmpty() -> Bool {
         return true
     }
 }
 
 // Concrete class for the disabled countdown. Keeps CountdownBase abstract
 // while also having a more expressive name
-class DisabledCountdown: CountdownBase {}
+class EmptyCountdown: CountdownBase {}
 
 // The main Countdown class that will actually countdown.
 class Countdown: CountdownBase {
     // Use the User Setting for the delay value.
     @AppStorage(PicItSetting.delay.key) var delay: Double = PicItSetting.delay.value
     
-    override func isDisabled() -> Bool {
+    override func isEmpty() -> Bool {
         return false
     }
+    
     
     override init() {
         super.init()

@@ -27,6 +27,8 @@
 		D74E273927AF2D6700992242 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E273827AF2D6700992242 /* ContentView.swift */; };
 		D74E273D27B29FBC00992242 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D74E273C27B29FBC00992242 /* Assets.xcassets */; };
 		D74E274027B8709A00992242 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E273F27B8709A00992242 /* CountdownView.swift */; };
+		D7752ECE27C3CC9300F3EB16 /* OutputHandlerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7752ECD27C3CC9300F3EB16 /* OutputHandlerView.swift */; };
+		D7752ED027C4231D00F3EB16 /* ThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7752ECF27C4231D00F3EB16 /* ThumbnailView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +72,8 @@
 		D74E273827AF2D6700992242 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D74E273C27B29FBC00992242 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D74E273F27B8709A00992242 /* CountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownView.swift; sourceTree = "<group>"; };
+		D7752ECD27C3CC9300F3EB16 /* OutputHandlerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputHandlerView.swift; sourceTree = "<group>"; };
+		D7752ECF27C4231D00F3EB16 /* ThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -194,6 +198,8 @@
 				D74E26F927AC2F1600992242 /* CameraView.swift */,
 				D74E273827AF2D6700992242 /* ContentView.swift */,
 				D74E273F27B8709A00992242 /* CountdownView.swift */,
+				D7752ECD27C3CC9300F3EB16 /* OutputHandlerView.swift */,
+				D7752ECF27C4231D00F3EB16 /* ThumbnailView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -331,6 +337,7 @@
 			files = (
 				D74E26FA27AC2F1600992242 /* CameraView.swift in Sources */,
 				D74E272E27AC30C700992242 /* CameraPreview.swift in Sources */,
+				D7752ECE27C3CC9300F3EB16 /* OutputHandlerView.swift in Sources */,
 				D74E274027B8709A00992242 /* CountdownView.swift in Sources */,
 				D74E273927AF2D6700992242 /* ContentView.swift in Sources */,
 				D74E272427AC2FC100992242 /* CameraService+Enums.swift in Sources */,
@@ -341,6 +348,7 @@
 				D74E273527AF18D100992242 /* Countdown.swift in Sources */,
 				D74E272627AC2FE900992242 /* CameraService+Extensions.swift in Sources */,
 				D707D95827BE99FC0021E33E /* ShareViewController.swift in Sources */,
+				D7752ED027C4231D00F3EB16 /* ThumbnailView.swift in Sources */,
 				D74E273727AF197200992242 /* PicItSettings.swift in Sources */,
 				D74E273027AC385F00992242 /* CameraModel.swift in Sources */,
 			);

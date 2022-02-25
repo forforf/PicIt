@@ -3,13 +3,18 @@
 import SwiftUI
 import Combine
 import AVFoundation
+import PhotosUI // Used for deleting photos from the Library
 
-typealias PhotoHandler = (_ sharePic: Photo) -> Void
+//typealias PhotoHandler = (_ sharePic: Photo) -> Void
+// TODO: Look into using "Result" type in callbacks
+typealias PhotoChangeCompletion = (Bool, Error?) -> Void
 
 final class CameraModel: ObservableObject {
     private let service = CameraService()
     
     @Published var photo: Photo!
+    
+    @Published var photoLocalId: String!
     
     @Published var showAlertError = false
     
@@ -25,6 +30,12 @@ final class CameraModel: ObservableObject {
     
     init() {
         self.session = service.session
+        
+        service.$photoLocalId.sink { [weak self] (localId) in
+            guard let id = localId else { return }
+            self?.photoLocalId = id
+        }
+        .store(in: &self.subscriptions)
         
         service.$photo.sink { [weak self] (photo) in
             guard let pic = photo else { return }
@@ -74,7 +85,20 @@ final class CameraModel: ObservableObject {
 
     }
     
-    func withPhoto(completion: PhotoHandler) {
-        service.withPhoto(completion: completion)
+    // TODO: Not sure if this belongs in the "Camera" model, but it's better than being in the view.
+    func deletePhoto(localId: String, completion: @escaping PhotoChangeCompletion) {
+        DispatchQueue.main.async {
+            
+            let assets = PHAsset.fetchAssets(withLocalIdentifiers: [localId], options: nil)
+            print(assets)
+            
+            PHPhotoLibrary.shared().performChanges({
+                PHAssetChangeRequest.deleteAssets(assets)
+            }, completionHandler: completion)
+        }
     }
+    
+//    func withPhoto(completion: PhotoHandler) {
+//        service.withPhoto(completion: completion)
+//    }
 }

@@ -73,6 +73,8 @@ public class CameraService {
 //    8.
     @Published public var photo: Photo?
     
+    @Published public var photoLocalId: String?
+    
 
 //    MARK: Alert properties
     public var alertError: AlertError = AlertError()
@@ -472,6 +474,15 @@ public class CameraService {
                     }
                     
                 }, completionHandler: { [weak self] (photoCaptureProcessor) in
+                    
+                    // Reference to photo
+                    if let localId = photoCaptureProcessor.photoLocalId {
+                        self?.photoLocalId = localId
+                        print("Found photo Id: \(localId)")
+                    } else {
+                        print("No photo id found")
+                    }
+                    
                     // When the capture is complete, remove a reference to the photo capture delegate so it can be deallocated.
                     if let data = photoCaptureProcessor.photoData {
                         self?.photo = Photo(originalData: data)
@@ -504,12 +515,12 @@ public class CameraService {
         }
     }
     
-    //    MARK: withPhoto. A callback that passes the current photo to the completion closure.
-    
-    /// - Tag: withPhoto
-    public func withPhoto(completion: (Photo) -> Void) {
-        if self.photo != nil {
-            completion(self.photo!)
-        }
-    }
+//    //    MARK: withPhoto. A callback that passes the current photo to the completion closure.
+//    
+//    /// - Tag: withPhoto
+//    public func withPhoto(completion: (Photo) -> Void) {
+//        if self.photo != nil {
+//            completion(self.photo!)
+//        }
+//    }
 }
