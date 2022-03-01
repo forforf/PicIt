@@ -3,7 +3,7 @@
 import SwiftUI
 
 struct CountdownView: View {
-    @ObservedObject var countdown: CountdownBase
+    @ObservedObject var countdown: Countdown
     
     //TODO: Is there a way to make these immutable rather than @State?
     @State var countdownText: String = ""
@@ -26,17 +26,19 @@ struct CountdownView: View {
             countdownText = countdown > 0 ? String(format: "%.0f", countdown) : "0"
         })
         
-        // countdown can be an "empty", which really should be called disabled.
-        // In which case nothing is ever published, so the on Receive never fires.
-        .onReceive(countdown.$countdownState, perform: { countdownState in
+        .onReceive(countdown.$state, perform: { countdownState in
             switch countdownState {
-            case .notStarted:
+            case .stopped:
                 buttonColor = .gray
             case .inProgress:
                 buttonColor = .yellow
             case .triggering:
                 buttonColor = .green
             case .complete:
+                buttonColor = .mint
+            case .undefined:
+                buttonColor = .black
+            case .ready:
                 buttonColor = .white
             }
         })

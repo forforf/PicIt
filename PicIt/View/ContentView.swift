@@ -4,8 +4,9 @@ import SwiftUI
 
 
 struct ContentView: View {
-//    @Environment(\.scenePhase) var scenePhase
     
+    // StateObject because this is the view that creates the Observable Countdown()
+    // Consider changing to EnvironmentObject if many or deep views need access to it.
     @StateObject var countdown = Countdown()
     
     var body: some View {

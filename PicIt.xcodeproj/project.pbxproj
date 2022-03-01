@@ -29,6 +29,7 @@
 		D74E274027B8709A00992242 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E273F27B8709A00992242 /* CountdownView.swift */; };
 		D7752ECE27C3CC9300F3EB16 /* OutputHandlerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7752ECD27C3CC9300F3EB16 /* OutputHandlerView.swift */; };
 		D7752ED027C4231D00F3EB16 /* ThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7752ECF27C4231D00F3EB16 /* ThumbnailView.swift */; };
+		D7752ED227CE653100F3EB16 /* TimerPublishers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7752ED127CE653100F3EB16 /* TimerPublishers.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +75,7 @@
 		D74E273F27B8709A00992242 /* CountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownView.swift; sourceTree = "<group>"; };
 		D7752ECD27C3CC9300F3EB16 /* OutputHandlerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputHandlerView.swift; sourceTree = "<group>"; };
 		D7752ECF27C4231D00F3EB16 /* ThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailView.swift; sourceTree = "<group>"; };
+		D7752ED127CE653100F3EB16 /* TimerPublishers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerPublishers.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +189,7 @@
 				D74E272F27AC385F00992242 /* CameraModel.swift */,
 				D74E273427AF18D100992242 /* Countdown.swift */,
 				D74E273627AF197200992242 /* PicItSettings.swift */,
+				D7752ED127CE653100F3EB16 /* TimerPublishers.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -336,6 +339,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D74E26FA27AC2F1600992242 /* CameraView.swift in Sources */,
+				D7752ED227CE653100F3EB16 /* TimerPublishers.swift in Sources */,
 				D74E272E27AC30C700992242 /* CameraPreview.swift in Sources */,
 				D7752ECE27C3CC9300F3EB16 /* OutputHandlerView.swift in Sources */,
 				D74E274027B8709A00992242 /* CountdownView.swift in Sources */,

@@ -12,7 +12,7 @@ struct CameraView: View {
     @StateObject var model = CameraModel()
     
     @State var currentZoomFactor: CGFloat = 1.0
-    @State var countdown: CountdownBase
+    @ObservedObject var countdown: Countdown
     
     var captureButton: some View {
         Button(action: {
@@ -23,7 +23,7 @@ struct CameraView: View {
         
         // Note that countdown can be in a disabled state.
         // In which case nothing is ever published, so onReceive never fires
-            .onReceive(countdown.$countdownState, perform: { countdownState in
+            .onReceive(countdown.$state, perform: { countdownState in
                 
                 // Here is where we should do any actions when the countdown is reached
                 if countdownState == .triggering {
@@ -31,46 +31,12 @@ struct CameraView: View {
                     model.capturePhoto()
                 }
             })
-        
-//            .onChange(of: scenePhase) { newPhase in
-//                switch newPhase {
-//                case .background, .inactive:
-//                    countdown = DisabledCountdown()
-//                case .active:
-//                    countdown = countdown.isDisabled() ? Countdown() : countdown
-//                @unknown default:
-//                    countdown = DisabledCountdown()
-//                }
-//            }
     }
     
     var capturedPhotoThumbnail: some View {
         ThumbnailView(photo: model.photo, localId: model.photoLocalId, shareAction: {
             print("Closure onTapAction")
-
-            // TODO move completion to different view
-//            model.withPhoto(completion: ShareViewController.shareCompletion)
         })
-//        Group {
-//
-//            if model.photo != nil {
-//                Image(uiImage: model.photo.image!)
-//                    .resizable()
-//                    .aspectRatio(contentMode: .fill)
-//                    .frame(width: 60, height: 60)
-//                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-//                    .gesture(TapGesture().onEnded({_ in
-//                        print("Tapped Image")
-//                        model.withPhoto(completion: ShareViewController.shareCompletion)
-//                    }))
-//                // .animation(.spring())
-//
-//            } else {
-//                RoundedRectangle(cornerRadius: 10)
-//                    .frame(width: 60, height: 60, alignment: .center)
-//                    .foregroundColor(.yellow)
-//            }
-//        }
     }
     
     var flipCameraButton: some View {
@@ -156,12 +122,12 @@ struct CameraView: View {
             .onChange(of: scenePhase) { newPhase in
                 print("newPhase: \(newPhase)")
                 switch newPhase {
-                case .background:
-                    countdown = EmptyCountdown()
-                case .active, .inactive:
-                    countdown = countdown.isEmpty() ? Countdown() : countdown
+                case .background, .inactive:
+                    countdown.stop()
+                case .active:
+                    countdown.start()
                 @unknown default:
-                    countdown = EmptyCountdown()
+                    countdown.stop()
                 }
             }
         }
