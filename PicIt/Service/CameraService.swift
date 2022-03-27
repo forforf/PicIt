@@ -54,6 +54,12 @@ extension Photo {
 }
 
 public class CameraService {
+    static let log = PicItSelfLog<CameraService>.get()
+    public enum Media {
+        case photo
+        case video
+    }
+    
     typealias PhotoCaptureSessionID = String
     
 // MARK: Observed Properties UI must react to
@@ -107,7 +113,16 @@ public class CameraService {
     
     private var keyValueObservations = [NSKeyValueObservation]()
     
-    public func configure() {
+    private var movieFileOutput: AVCaptureMovieFileOutput?
+    
+    public func configure(media: CameraService.Media) {
+        var configurator = configurePhotoSession // default
+        switch media {
+        case .photo:
+            configurator = self.configurePhotoSession
+        case .video:
+            configurator = self.configureVideoSession
+        }
         /*
          Setup the capture session.
          In general, it's not safe to mutate an AVCaptureSession or any of its
@@ -119,7 +134,7 @@ public class CameraService {
          that the main queue isn't blocked, which keeps the UI responsive.
          */
         sessionQueue.async {
-            self.configureSession()
+            configurator()
         }
     }
     
@@ -195,15 +210,40 @@ public class CameraService {
     
     // Call this on the session queue.
     /// - Tag: ConfigureSession
-    private func configureSession() {
-        if setupResult != .success {
-            return
+    
+    private func validateSetup() -> Bool {
+        let setupSuccess = setupResult == .success
+        if !setupSuccess {
+            Self.log.warning("Setup was not successful.")
+        }
+        return setupSuccess
+    }
+    
+    private func configurationFailed(_ message: String) {
+        Self.log.error("Configuration Failed: \(message)")
+        setupResult = .configurationFailed
+        session.commitConfiguration()
+    }
+    
+    private func addAudioInputToSession() {
+        // Add an audio input device.
+        do {
+            let audioDevice = AVCaptureDevice.default(for: .audio)
+            let audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice!)
+            
+            if session.canAddInput(audioDeviceInput) {
+                session.addInput(audioDeviceInput)
+            } else {
+                configurationFailed("Could not add audio device input to the session")
+                return
+            }
+        } catch {
+            configurationFailed("Could not create audio device input: \(error)")
         }
         
-        session.beginConfiguration()
-        
-        session.sessionPreset = .photo
-        
+        Self.log.debug("Added audio input to session")
+    }
+    private func addVideoInputToSession() {
         // Add video input.
         do {
             var defaultVideoDevice: AVCaptureDevice?
@@ -217,9 +257,7 @@ public class CameraService {
             }
             
             guard let videoDevice = defaultVideoDevice else {
-                print("Default video device is unavailable.")
-                setupResult = .configurationFailed
-                session.commitConfiguration()
+                configurationFailed("Default video device is unavailable.")
                 return
             }
             
@@ -230,17 +268,25 @@ public class CameraService {
                 self.videoDeviceInput = videoDeviceInput
                 
             } else {
-                print("Couldn't add video device input to the session.")
-                setupResult = .configurationFailed
-                session.commitConfiguration()
+                configurationFailed("Couldn't add video device input to the session.")
                 return
             }
         } catch {
-            print("Couldn't create video device input: \(error)")
-            setupResult = .configurationFailed
-            session.commitConfiguration()
+            configurationFailed("Couldn't create video device input: \(error)")
             return
         }
+        
+        Self.log.debug("Added video input to session")
+    }
+    
+    private func configurePhotoSession() {
+        guard validateSetup() else { return }
+        
+        session.beginConfiguration()
+        
+        session.sessionPreset = .photo
+        
+        addVideoInputToSession()
         
         // Add the photo output.
         if session.canAddOutput(photoOutput) {
@@ -250,19 +296,58 @@ public class CameraService {
             photoOutput.maxPhotoQualityPrioritization = .quality
             
         } else {
-            print("Could not add photo output to the session")
-            setupResult = .configurationFailed
-            session.commitConfiguration()
+            configurationFailed("Could not add photo output to the session")
             return
         }
         
         session.commitConfiguration()
         
         self.isConfigured = true
+        Self.log.info("Photo Session configured")
         
         self.start()
+        Self.log.info("Photo Session started")
     }
  
+    private func configureVideoSession() {
+        guard validateSetup() else { return }
+        
+        session.beginConfiguration()
+        
+        session.sessionPreset = .high
+        
+        addVideoInputToSession()
+        addAudioInputToSession()
+        
+        let movieFileOutput = AVCaptureMovieFileOutput()
+        
+        if session.canAddOutput(movieFileOutput) {
+            session.beginConfiguration()
+            session.addOutput(movieFileOutput)
+            
+            if let connection = movieFileOutput.connection(with: .video) {
+                if connection.isVideoStabilizationSupported {
+                    connection.preferredVideoStabilizationMode = .auto
+                }
+            }
+            session.commitConfiguration()
+            
+        } else {
+            configurationFailed("Could not add video output to the session")
+            return
+        }
+        
+        self.movieFileOutput = movieFileOutput
+
+        session.commitConfiguration()
+        self.isConfigured = true
+        
+        Self.log.info("Video Session configured")
+        
+        self.start()
+        Self.log.info("Video Session started")
+    }
+    
     // MARK: Device Configuration
     
     /// - Tag: ChangeCamera
@@ -273,6 +358,7 @@ public class CameraService {
         }
         //
         
+        // TODO: Evaluate to make sure it will work with video as well as photo configuration
         sessionQueue.async {
             let currentVideoDevice = self.videoDeviceInput.device
             let currentPosition = currentVideoDevice.position

@@ -10,6 +10,13 @@ import PhotosUI // Used for deleting photos from the Library
 typealias PhotoChangeCompletion = (Bool, Error?) -> Void
 
 final class CameraModel: ObservableObject {
+    static let log = PicItSelfLog<CameraModel>.get()
+    
+    enum Media {
+        case photo
+        case video
+    }
+    
     private let service = CameraService()
     
     @Published var photo: Photo!
@@ -60,9 +67,31 @@ final class CameraModel: ObservableObject {
         .store(in: &self.subscriptions)
     }
     
-    func configure() {
+    func configure(media: CameraModel.Media) {
         service.checkForPermissions()
-        service.configure()
+        
+        // Map model media enum to service media enum.
+        // Although it seems redundant, it keeps the abstractions clean
+        // TODO: Move to CameraService extension method if we end up using in multiple places.
+        let serviceMedia: CameraService.Media = {
+            switch media {
+            case .photo:
+                return .photo
+            case .video:
+                return .video
+            }
+        }()
+        
+        service.configure(media: serviceMedia)
+    }
+    
+    func capture(media: CameraModel.Media) {
+        switch media {
+        case .photo:
+            service.capturePhoto()
+        case .video:
+            print("TODO: Capture Movie")
+        }
     }
     
     func capturePhoto() {

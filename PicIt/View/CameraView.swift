@@ -4,7 +4,6 @@
 
 import SwiftUI
 import Combine
-import os.log
 
 class AvoidStateChange {
     // The system delete user prompt takes our app out of foreground
@@ -14,8 +13,21 @@ class AvoidStateChange {
     static var returningFromSystemDeletePrompt: Bool = false
 }
 
+extension CameraModel {
+    func viewToModelMedia(_ viewMedia: PicItMedia) -> CameraModel.Media {
+        return {
+            switch viewMedia {
+            case .photo:
+                return CameraModel.Media.photo
+            case .video:
+                return CameraModel.Media.video
+            }
+        }()
+    }
+}
+
 struct CameraView: View {
-    static let log = Logger(subsystem: "us.joha.PicIt", category: "CameraView")
+    static let log = PicItSelfLog<CameraView>.get()
 
     @Environment(\.scenePhase) var scenePhase
     
@@ -26,9 +38,12 @@ struct CameraView: View {
     
     @ObservedObject var countdown: Countdown
     
+    @ViewBuilder
     var captureButton: some View {
+        // modelMedia is enum of .photo or .video
+        let modelMedia = model.viewToModelMedia(SettingsStore.mediaType)
         Button(action: {
-            model.capturePhoto()
+            model.capture(media: modelMedia)
         }, label: {
             CountdownView(countdown: countdown)
         })
@@ -39,8 +54,10 @@ struct CameraView: View {
                 Self.log.info("Received Countdown state change: \(String(describing: countdownState))")
                 // Here is where we should do any actions when the countdown is reached
                 if countdownState == .triggering {
-                    // Take picture
-                    model.capturePhoto()
+                    // Start media capture (photo or video)
+                    let modelMedia = model.viewToModelMedia(SettingsStore.mediaType)
+                    CameraView.log.debug("Capture after countdown using media: \(String(describing: modelMedia))")
+                    model.capture(media: modelMedia)
                 }
             })
     }
@@ -116,7 +133,9 @@ struct CameraView: View {
                                 })
                             )
                             .onAppear {
-                                model.configure()
+                                let modelMedia = model.viewToModelMedia(SettingsStore.mediaType)
+                                CameraView.log.debug("Configure after appear using media: \(String(describing: modelMedia))")
+                                model.configure(media: modelMedia)
                             }
                             .alert(isPresented: $model.showAlertError, content: {
                                 Alert(title: Text(model.alertError.title), message: Text(model.alertError.message), dismissButton: .default(Text(model.alertError.primaryButtonTitle), action: {

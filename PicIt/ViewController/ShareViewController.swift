@@ -1,7 +1,6 @@
 // TODO: Is ViewController an appropriate home for this code?
 
 import UIKit
-import os.log
 
 // Extension to find the key window.
 // Primary use is to find the underlying videwcontroller in order to add
@@ -23,7 +22,7 @@ extension UIApplication {
 }
 
 struct ShareViewController {
-    static let log = Logger(subsystem: "us.joha.PicIt", category: "ShareViewController")
+    static let log = PicItSelfLog<ShareViewController>.get()
     // I'm not sure a static func is the right thing to do here.
     // TODO: Is a Boolean the right return type?
     static func share(sharePic: UIImage) -> Bool {

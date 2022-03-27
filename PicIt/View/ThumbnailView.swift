@@ -1,12 +1,11 @@
 //
 
 import SwiftUI
-import os.log
 
 // typealias Action = () -> Void
 
 struct ThumbnailImageView: View {
-    static let log = Logger(subsystem: "us.joha.PicIt", category: "ThumbnailImageView")
+    static let log = PicItSelfLog<ThumbnailImageView>.get()
     
     let image: UIImage
     let localId: String

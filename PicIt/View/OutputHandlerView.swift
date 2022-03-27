@@ -1,6 +1,5 @@
 //
 import SwiftUI
-import os.log
 
 // TODO: Remove this dependency
 import PhotosUI
@@ -34,7 +33,7 @@ extension ShareImageSheet {
 }
 
 struct OutputHandlerView: View {
-    static let log = Logger(subsystem: "us.joha.PicIt", category: "OutputHandlerView")
+    static let log = PicItSelfLog<OutputHandlerView>.get()
     
     @Environment(\.dismiss) var dismiss
     

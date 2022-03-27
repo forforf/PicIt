@@ -1,8 +1,10 @@
 //
+import SwiftUI
+import Combine
 
 enum PicItMedia: String, CaseIterable {
     case photo = "PHOTO"
-    case media = "MEDIA"
+    case video = "VIDEO"
 }
 
 // Convenience Struct for associating a setting key to its assigned value.
@@ -21,10 +23,13 @@ struct PicItSetting {
 //    static var enableCountdown: Bool = true
 }
 
-import SwiftUI
-import Combine
-
 final class SettingsStore: ObservableObject {
+    
+    private enum Keys {
+        static let delay = "PICIT_DELAY"
+        static let media = "PICIT_MEDIA"
+    }
+    
     // Static properties are not observable but are useful when we need static access to the Defaults.
     // For example, non-views (like the Countdown model) that should use the stored defaults.
     static var countdownStart: Int {
@@ -33,11 +38,13 @@ final class SettingsStore: ObservableObject {
         get { UserDefaults.standard.integer(forKey: Keys.delay) }
     }
     
-    private enum Keys {
-        static let delay = "PICIT_DELAY"
-        static let media = "PICIT_MEDIA"
+    static var mediaType: PicItMedia {
+        get {
+            let mediaSetting = UserDefaults.standard.string(forKey: Keys.media) ?? PicItMedia.photo.rawValue
+            return PicItMedia(rawValue: mediaSetting) ?? PicItMedia.photo
+        }
     }
-
+    
     private let cancellable: Cancellable
     private let defaults: UserDefaults
 
@@ -58,14 +65,8 @@ final class SettingsStore: ObservableObject {
     }
 
     var mediaType: PicItMedia {
-        get {
-            return defaults.string(forKey: Keys.media)
-                .flatMap { PicItMedia(rawValue: $0) } ?? .photo
-        }
-
-        set {
-            defaults.set(newValue.rawValue, forKey: Keys.media)
-        }
+        get { Self.mediaType }
+        set { defaults.set(newValue.rawValue, forKey: Keys.media) }
     }
     
     var countdownStart: Int {

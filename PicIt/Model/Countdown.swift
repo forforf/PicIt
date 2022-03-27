@@ -16,7 +16,7 @@ enum CountdownState {
 
 class Countdown: ObservableObject {
     static let defaultInterval = PicItSetting.interval
-    static let log = Logger(subsystem: "us.joha.PicIt", category: "Countdown")
+    static let log = PicItSelfLog<Countdown>.get()
     
     @Published private(set) var time = 0.0
     @Published private(set) var state: CountdownState = .undefined
@@ -26,6 +26,7 @@ class Countdown: ObservableObject {
     
     init() {
         state = .ready
+        Self.log.debug("Countdown Initialized to ready state")
     }
     
     func start(_ interval: TimeInterval = defaultInterval,

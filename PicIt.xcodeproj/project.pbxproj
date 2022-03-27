@@ -36,6 +36,7 @@
 		D7752ED427D0E1ED00F3EB16 /* README.MD in Resources */ = {isa = PBXBuildFile; fileRef = D7752ED327D0E1ED00F3EB16 /* README.MD */; };
 		D7ABD43427EFA4ED0072FB0E /* TypeAlias.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7ABD43327EFA4ED0072FB0E /* TypeAlias.swift */; };
 		D7ABD43727EFA8A30072FB0E /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = D7ABD43627EFA8A30072FB0E /* .swiftlint.yml */; };
+		D7ABD43927F0A4750072FB0E /* PicItLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7ABD43827F0A4750072FB0E /* PicItLog.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -88,6 +89,7 @@
 		D7752ED327D0E1ED00F3EB16 /* README.MD */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.MD; sourceTree = "<group>"; };
 		D7ABD43327EFA4ED0072FB0E /* TypeAlias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeAlias.swift; sourceTree = "<group>"; };
 		D7ABD43627EFA8A30072FB0E /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
+		D7ABD43827F0A4750072FB0E /* PicItLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicItLog.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,6 +163,7 @@
 			children = (
 				D74E26F727AC2F1600992242 /* PicItApp.swift */,
 				D7ABD43327EFA4ED0072FB0E /* TypeAlias.swift */,
+				D7ABD43827F0A4750072FB0E /* PicItLog.swift */,
 				D74E273E27B86FFA00992242 /* View */,
 				D74E273C27B29FBC00992242 /* Assets.xcassets */,
 				D707D95927BE9CCD0021E33E /* ViewController */,
@@ -387,6 +390,7 @@
 				D7752ECE27C3CC9300F3EB16 /* OutputHandlerView.swift in Sources */,
 				D76EBDED27E8B8010062D59B /* SettingsView.swift in Sources */,
 				D74E274027B8709A00992242 /* CountdownView.swift in Sources */,
+				D7ABD43927F0A4750072FB0E /* PicItLog.swift in Sources */,
 				D74E273927AF2D6700992242 /* ContentView.swift in Sources */,
 				D74E272427AC2FC100992242 /* CameraService+Enums.swift in Sources */,
 				D7ABD43427EFA4ED0072FB0E /* TypeAlias.swift in Sources */,
@@ -565,6 +569,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "PicIt needs access to your camera to capture photos and videos";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "PicIt needs access to your microphone to add sound to videos.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "PicIt saves to your photo library";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -596,6 +601,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "PicIt needs access to your camera to capture photos and videos";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "PicIt needs access to your microphone to add sound to videos.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "PicIt saves to your photo library";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
