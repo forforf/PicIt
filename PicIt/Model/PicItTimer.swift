@@ -58,7 +58,6 @@ class Countdown: CountdownBase {
                 return self.delay - elapsedTime
             })
             .assign(to: &$time)
-
         
         // $time is the countdown value, so we map it to
         // the relevant countdown states

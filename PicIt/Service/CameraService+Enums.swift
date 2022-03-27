@@ -2,7 +2,7 @@
 
 import Foundation
 
-//  MARK: CameraService Enums
+// MARK: CameraService Enums
 extension CameraService {
     enum LivePhotoMode {
         case on
@@ -30,4 +30,3 @@ extension CameraService {
         case movie = 1
     }
 }
-

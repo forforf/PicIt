@@ -18,6 +18,9 @@ class PhotoCaptureProcessor: NSObject {
 //    The actual captured photo's data
     var photoData: Data?
     
+//    Reference to the captured photo (so we can delete it)
+    var photoLocalId: String?
+    
 //    The maximum time lapse before telling UI to show a spinner
     private var maxPhotoProcessingTime: CMTime?
         
@@ -73,7 +76,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
         }
     }
     
-    //        MARK: Saves capture to photo library
+    // MARK: Saves capture to photo library
     func saveToPhotoLibrary(_ photoData: Data) {
         
         PHPhotoLibrary.requestAuthorization { status in
@@ -81,10 +84,13 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                 PHPhotoLibrary.shared().performChanges({
                     let options = PHAssetResourceCreationOptions()
                     let creationRequest = PHAssetCreationRequest.forAsset()
+                    
                     options.uniformTypeIdentifier = self.requestedPhotoSettings.processedFileType.map { $0.rawValue }
                     creationRequest.addResource(with: .photo, data: photoData, options: options)
                     
-                    
+                    // set identifier
+                    self.photoLocalId = creationRequest.placeholderForCreatedAsset?.localIdentifier
+                                
                 }, completionHandler: { _, error in
                     if let error = error {
                         print("Error occurred while saving photo to photo library: \(error)")

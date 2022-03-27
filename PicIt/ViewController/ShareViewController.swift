@@ -1,6 +1,7 @@
 // TODO: Is ViewController an appropriate home for this code?
 
 import UIKit
+import os.log
 
 // Extension to find the key window.
 // Primary use is to find the underlying videwcontroller in order to add
@@ -22,6 +23,7 @@ extension UIApplication {
 }
 
 struct ShareViewController {
+    static let log = Logger(subsystem: "us.joha.PicIt", category: "ShareViewController")
     // I'm not sure a static func is the right thing to do here.
     // TODO: Is a Boolean the right return type?
     static func share(sharePic: UIImage) -> Bool {
@@ -30,9 +32,8 @@ struct ShareViewController {
             UIActivity.ActivityType.assignToContact,
             UIActivity.ActivityType.addToReadingList,
             UIActivity.ActivityType.markupAsPDF,
-            UIActivity.ActivityType.openInIBooks,
+            UIActivity.ActivityType.openInIBooks
         ]
-
 
         guard let source = UIApplication.shared.keyWindow?.rootViewController else {
             return false
@@ -48,22 +49,12 @@ struct ShareViewController {
     
     }
     
-    // A convenient completion handler, suitable for handling the general case
-    static func shareCompletion(_ photo: Photo) {
-        
-        //TODO: I hate nested ifs, is there a better way?
-        if let image = photo.image {
-            // TODO: Is a Bool the right way to handle success/failure here?
-            if ShareViewController.share(sharePic: image) {
-                print("Called share sheet")
-            } else {
-                print("Failed to call share sheet")
-            }
-            
+    // A convenient handler for sharing a UIImage, suitable for handling the general case
+    static func shareCompletion(_ image: UIImage) {
+        if ShareViewController.share(sharePic: image) {
+            Self.log.debug("Called share sheet")
         } else {
-            print("No image found to share")
+            Self.log.debug("Failed to call share sheet")
         }
     }
 }
-
-

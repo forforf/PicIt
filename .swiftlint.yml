@@ -1,0 +1,19 @@
+#line_length:
+#  ignores_interpolated_strings: true
+
+disabled_rules:
+- trailing_whitespace
+- line_length
+- todo
+- implicit_getter
+- force_cast
+- file_length
+- function_body_length
+- type_body_length
+
+identifier_name:
+  min_length: 2
+  excluded:
+    - x
+    - y
+    - id

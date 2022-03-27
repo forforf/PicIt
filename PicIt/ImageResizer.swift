@@ -23,7 +23,7 @@ public struct ImageResizer {
         let originalSize = image.size
         let targetSize = CGSize(width: targetWidth, height: targetWidth*originalSize.height/originalSize.width)
         let renderer = UIGraphicsImageRenderer(size: targetSize)
-        return renderer.image { (context) in
+        return renderer.image { (_) in
             image.draw(in: CGRect(origin: .zero, size: targetSize))
         }
     }

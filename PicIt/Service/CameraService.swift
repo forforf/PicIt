@@ -6,7 +6,7 @@ import AVFoundation
 import Photos
 import UIKit
 
-//  MARK: Class Camera Service, handles setup of AVFoundation needed for a basic camera app.
+// MARK: Class Camera Service, handles setup of AVFoundation needed for a basic camera app.
 public struct Photo: Identifiable, Equatable {
 //    The ID of the captured photo
     public var id: String
@@ -24,10 +24,10 @@ public struct AlertError {
     public var message: String = ""
     public var primaryButtonTitle = "Accept"
     public var secondaryButtonTitle: String?
-    public var primaryAction: (() -> ())?
-    public var secondaryAction: (() -> ())?
+    public var primaryAction: (() -> Void)?
+    public var secondaryAction: (() -> Void)?
     
-    public init(title: String = "", message: String = "", primaryButtonTitle: String = "Accept", secondaryButtonTitle: String? = nil, primaryAction: (() -> ())? = nil, secondaryAction: (() -> ())? = nil) {
+    public init(title: String = "", message: String = "", primaryButtonTitle: String = "Accept", secondaryButtonTitle: String? = nil, primaryAction: (() -> Void)? = nil, secondaryAction: (() -> Void)? = nil) {
         self.title = title
         self.message = message
         self.primaryAction = primaryAction
@@ -56,7 +56,7 @@ extension Photo {
 public class CameraService {
     typealias PhotoCaptureSessionID = String
     
-//    MARK: Observed Properties UI must react to
+// MARK: Observed Properties UI must react to
     
 //    1.
     @Published public var flashMode: AVCaptureDevice.FlashMode = .off
@@ -73,8 +73,9 @@ public class CameraService {
 //    8.
     @Published public var photo: Photo?
     
-
-//    MARK: Alert properties
+    @Published public var photoLocalId: String?
+    
+// MARK: Alert properties
     public var alertError: AlertError = AlertError()
     
 // MARK: Session Management Properties
@@ -106,7 +107,6 @@ public class CameraService {
     
     private var keyValueObservations = [NSKeyValueObservation]()
     
-    
     public func configure() {
         /*
          Setup the capture session.
@@ -123,7 +123,7 @@ public class CameraService {
         }
     }
     
-    //        MARK: Checks for user's permisions
+    // MARK: Checks for user's permisions
     public func checkForPermissions() {
         // Check for permission to take photos
         switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -167,7 +167,7 @@ public class CameraService {
             break
         case .notDetermined:
             sessionQueue.suspend()
-            PHPhotoLibrary.requestAuthorization( { authStatus in
+            PHPhotoLibrary.requestAuthorization({ authStatus in
                 if authStatus != .authorized {
                     self.setupResult = .notAuthorized
                 }
@@ -189,10 +189,9 @@ public class CameraService {
             }
         }
 
-        
     }
     
-    //  MARK: Session Management
+    // MARK: Session Management
     
     // Call this on the session queue.
     /// - Tag: ConfigureSession
@@ -264,11 +263,11 @@ public class CameraService {
         self.start()
     }
  
-    //  MARK: Device Configuration
+    // MARK: Device Configuration
     
     /// - Tag: ChangeCamera
     public func changeCamera() {
-        //        MARK: Here disable all camera operation related buttons due to configuration is due upon and must not be interrupted
+        // MARK: Here disable all camera operation related buttons due to configuration is due upon and must not be interrupted
         DispatchQueue.main.async {
             self.isCameraButtonDisabled = true
         }
@@ -296,7 +295,7 @@ public class CameraService {
                 preferredDeviceType = .builtInWideAngleCamera
             }
             let devices = self.videoDeviceDiscoverySession.devices
-            var newVideoDevice: AVCaptureDevice? = nil
+            var newVideoDevice: AVCaptureDevice?
             
             // First, seek a device with both the preferred position and device type. Otherwise, seek a device with only the preferred position.
             if let device = devices.first(where: { $0.position == preferredPosition && $0.deviceType == preferredDeviceType }) {
@@ -337,13 +336,13 @@ public class CameraService {
             }
             
             DispatchQueue.main.async {
-//                MARK: Here enable capture button due to successfull setup
+            // MARK: EnableCaptureButton Here enable capture button due to successfull setup
                 self.isCameraButtonDisabled = false
             }
         }
     }
     
-    public func focus(at focusPoint: CGPoint){
+    public func focus(at focusPoint: CGPoint) {
 //        let focusPoint = self.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
 
         let device = self.videoDeviceInput.device
@@ -356,15 +355,14 @@ public class CameraService {
                 device.focusMode = .continuousAutoFocus
                 device.unlockForConfiguration()
             }
-        }
-        catch {
+        } catch {
             print(error.localizedDescription)
         }
     }
     
     /// - Tag: Stop capture session
     
-    public func stop(completion: (() -> ())? = nil) {
+    public func stop(completion: (() -> Void)? = nil) {
         sessionQueue.async {
             if self.isSessionRunning {
                 if self.setupResult == .success {
@@ -415,7 +413,7 @@ public class CameraService {
         }
     }
     
-    public func set(zoom: CGFloat){
+    public func set(zoom: CGFloat) {
         let factor = zoom < 1 ? 1 : zoom
         let device = self.videoDeviceInput.device
         
@@ -423,13 +421,12 @@ public class CameraService {
             try device.lockForConfiguration()
             device.videoZoomFactor = factor
             device.unlockForConfiguration()
-        }
-        catch {
+        } catch {
             print(error.localizedDescription)
         }
     }
     
-    //    MARK: Capture Photo
+    // MARK: Capture Photo
     
     /// - Tag: CapturePhoto
     public func capturePhoto() {
@@ -472,6 +469,15 @@ public class CameraService {
                     }
                     
                 }, completionHandler: { [weak self] (photoCaptureProcessor) in
+                    
+                    // Reference to photo
+                    if let localId = photoCaptureProcessor.photoLocalId {
+                        self?.photoLocalId = localId
+                        print("Found photo Id: \(localId)")
+                    } else {
+                        print("No photo id found")
+                    }
+                    
                     // When the capture is complete, remove a reference to the photo capture delegate so it can be deallocated.
                     if let data = photoCaptureProcessor.photoData {
                         self?.photo = Photo(originalData: data)
@@ -501,15 +507,6 @@ public class CameraService {
         } else {
             // TODO: Replace with proper error handling
             print("Setup Failed configuration")
-        }
-    }
-    
-    //    MARK: withPhoto. A callback that passes the current photo to the completion closure.
-    
-    /// - Tag: withPhoto
-    public func withPhoto(completion: (Photo) -> Void) {
-        if self.photo != nil {
-            completion(self.photo!)
         }
     }
 }

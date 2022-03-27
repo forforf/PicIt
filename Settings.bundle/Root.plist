@@ -9,6 +9,26 @@
 		<dict>
 			<key>Type</key>
 			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Media Type</string>
+			<key>Key</key>
+			<string>PICIT_MEDIA</string>
+			<key>DefaultValue</key>
+			<integer>0</integer>
+			<key>Titles</key>
+			<array>
+				<string>Photo</string>
+				<string>Video</string>
+			</array>
+			<key>Values</key>
+			<array>
+				<string>PHOTO</string>
+				<string>VIDEO</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
 			<key>Titles</key>
 			<array>
 				<string>Immediate</string>
