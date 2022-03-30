@@ -18,7 +18,6 @@ struct ThumbnailImageView: View {
         Image(uiImage: image)
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .frame(width: 60, height: 60)
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .gesture(TapGesture().onEnded({_ in
                 Self.log.debug("Tapped Image with id: \(localId)")
@@ -35,7 +34,6 @@ struct ThumbnailImageView: View {
 struct ThumbnailEmptyView: View {
     var body: some View {
         RoundedRectangle(cornerRadius: 10)
-            .frame(width: 60, height: 60, alignment: .center)
             .foregroundColor(.yellow)
     }
 }
@@ -57,12 +55,15 @@ struct ThumbnailView: View {
                 ThumbnailEmptyView()
             }
         }
+        .frame(width: 60, height: 60)
     }
 }
 
 struct ThumbnailView_Previews: PreviewProvider {
+    static let image = UIImage(systemName: "photo")!
+    
     static var previews: some View {
-        Text("TBD")
-//        ThumbnailView(photo: nil, localId: "AppIcon", shareAction: {})
+        ThumbnailView(photo: nil, localId: "AppIcon", shareAction: {}, deleteAction: {})
+        ThumbnailView(photo: Photo(originalData: image.pngData()!), localId: "AppIcon", shareAction: {}, deleteAction: {})
     }
 }

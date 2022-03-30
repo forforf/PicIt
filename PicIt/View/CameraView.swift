@@ -5,6 +5,16 @@
 import SwiftUI
 import Combine
 
+/* Let's think about all the states that should affect the view
+ - Preparing (countdown not started) [Does it matter if video or photo?]
+ - CountingDown  [Does it matter if video or photo?]
+     - Countdown increment (currently comes from countdown.$time)
+ - Countdown.$state (InProgress, Ready, Triggering, etc)
+ - Video vs Photo mode
+ 
+  TODO: Indicate whether video is recording or not.
+    Think about whether countdown should be a separate state or combined
+ */
 class AvoidStateChange {
     // The system delete user prompt takes our app out of foreground
     // but from the user point of view the app never left foreground
@@ -13,53 +23,42 @@ class AvoidStateChange {
     static var returningFromSystemDeletePrompt: Bool = false
 }
 
-extension CameraModel {
-    func viewToModelMedia(_ viewMedia: PicItMedia) -> CameraModel.Media {
-        return {
-            switch viewMedia {
-            case .photo:
-                return CameraModel.Media.photo
-            case .video:
-                return CameraModel.Media.video
-            }
-        }()
-    }
-}
-
 struct CameraView: View {
     static let log = PicItSelfLog<CameraView>.get()
 
     @Environment(\.scenePhase) var scenePhase
     
-    @StateObject var model = CameraModel()
-    
+    // TODO: Need to inspect this view to ensure correct form is being used: Observable vs static getter
+    @EnvironmentObject var settings: SettingsStore
+        
     @State var currentZoomFactor: CGFloat = 1.0
     @State var showSettings: Bool = false
+
     
+    @ObservedObject var model: CameraModel
     @ObservedObject var countdown: Countdown
     
-    @ViewBuilder
-    var captureButton: some View {
-        // modelMedia is enum of .photo or .video
-        let modelMedia = model.viewToModelMedia(SettingsStore.mediaType)
-        Button(action: {
-            model.capture(media: modelMedia)
-        }, label: {
-            CountdownView(countdown: countdown)
-        })
+    // TODO: Move this logic into a model
+    // TODO: Is it ok to use .wrappedValue?
+    func cameraAction() {
+        let media = $settings.mediaType.wrappedValue
+        let mediaState = $settings.mediaState
+        print("Media type (photo or video?): \(media)")
+        print("starting media state: \(settings.mediaState)")
+        switch mediaState.wrappedValue {
+        case .photoReady:
+            model.capture(media: media)
+        case .videoReady:
+            // TODO: guard that media == .video
+            settings.mediaState = .videoRecording(media)
+            model.capture(media: media)
+        case .videoRecording:
+            print("TODO: Stop Video Recording")
+            // TODO: guard that media == .video
+            settings.mediaState = .videoReady(media)
+        }
+        print("new media state: \(settings.mediaState)")
         
-        // Note that countdown can be in a disabled state.
-        // In which case nothing is ever published, so onReceive never fires
-            .onReceive(countdown.$state, perform: { countdownState in
-                Self.log.info("Received Countdown state change: \(String(describing: countdownState))")
-                // Here is where we should do any actions when the countdown is reached
-                if countdownState == .triggering {
-                    // Start media capture (photo or video)
-                    let modelMedia = model.viewToModelMedia(SettingsStore.mediaType)
-                    CameraView.log.debug("Capture after countdown using media: \(String(describing: modelMedia))")
-                    model.capture(media: modelMedia)
-                }
-            })
     }
     
     var flipCameraButton: some View {
@@ -90,7 +89,7 @@ struct CameraView: View {
                 SettingsView()
             }
     }
-    
+
     var body: some View {
         GeometryReader { reader in
             ZStack {
@@ -133,9 +132,9 @@ struct CameraView: View {
                                 })
                             )
                             .onAppear {
-                                let modelMedia = model.viewToModelMedia(SettingsStore.mediaType)
-                                CameraView.log.debug("Configure after appear using media: \(String(describing: modelMedia))")
-                                model.configure(media: modelMedia)
+                                let media = settings.mediaType
+                                CameraView.log.debug("Configure after appear using media: \(String(describing: media))")
+                                model.configure(media: media)
                             }
                             .alert(isPresented: $model.showAlertError, content: {
                                 Alert(title: Text(model.alertError.title), message: Text(model.alertError.message), dismissButton: .default(Text(model.alertError.primaryButtonTitle), action: {
@@ -152,7 +151,7 @@ struct CameraView: View {
                         // .animation(.easeInOut)
                         
                         CameraOverlayView(
-                            countdown: countdown,
+                            countdownState: countdown.state,
                             doPause: countdown.stop,
                             doRestart: countdown.restart
                         )
@@ -172,8 +171,8 @@ struct CameraView: View {
                         
                         Spacer()
                         
-                        captureButton
-                        
+                        CameraCaptureButton(countdown: countdown, mediaState: settings.mediaState, cameraAction: cameraAction)
+                             
                         Spacer()
                         
                         flipCameraButton
@@ -182,6 +181,9 @@ struct CameraView: View {
                     .padding(.horizontal, 20)
                 }
                 
+            }
+            .onDisappear {
+                print("Camera View Disappeared")
             }
             .onChange(of: scenePhase) { newPhase in
                 Self.log.info("newPhase: \(String(describing: newPhase))")
@@ -210,6 +212,6 @@ struct CameraView: View {
 
 struct CameraView_Previews: PreviewProvider {
     static var previews: some View {
-        CameraView(countdown: Countdown())
+        CameraView(model: CameraModel(), countdown: Countdown())
     }
 }

@@ -55,10 +55,6 @@ extension Photo {
 
 public class CameraService {
     static let log = PicItSelfLog<CameraService>.get()
-    public enum Media {
-        case photo
-        case video
-    }
     
     typealias PhotoCaptureSessionID = String
     
@@ -115,7 +111,7 @@ public class CameraService {
     
     private var movieFileOutput: AVCaptureMovieFileOutput?
     
-    public func configure(media: CameraService.Media) {
+    public func configure(media: PicItMedia) {
         var configurator = configurePhotoSession // default
         switch media {
         case .photo:

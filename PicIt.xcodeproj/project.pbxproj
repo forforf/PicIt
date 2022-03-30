@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D706FD5127FB363700A2C22F /* CameraCaptureButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D706FD5027FB363700A2C22F /* CameraCaptureButtonView.swift */; };
+		D706FD572802FE6600A2C22F /* MediaStateView+Extendsions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D706FD562802FE6600A2C22F /* MediaStateView+Extendsions.swift */; };
 		D707D95827BE99FC0021E33E /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D707D95727BE99FC0021E33E /* ShareViewController.swift */; };
 		D744A44F27E60FD800A7DE9F /* CameraOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D744A44E27E60FD800A7DE9F /* CameraOverlayView.swift */; };
 		D744A45127E677AB00A7DE9F /* CameraOverlayActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D744A45027E677AB00A7DE9F /* CameraOverlayActionView.swift */; };
@@ -57,6 +59,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D706FD5027FB363700A2C22F /* CameraCaptureButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureButtonView.swift; sourceTree = "<group>"; };
+		D706FD562802FE6600A2C22F /* MediaStateView+Extendsions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaStateView+Extendsions.swift"; sourceTree = "<group>"; };
 		D707D95727BE99FC0021E33E /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		D744A44E27E60FD800A7DE9F /* CameraOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraOverlayView.swift; sourceTree = "<group>"; };
 		D744A45027E677AB00A7DE9F /* CameraOverlayActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraOverlayActionView.swift; sourceTree = "<group>"; };
@@ -224,6 +228,8 @@
 				D744A44E27E60FD800A7DE9F /* CameraOverlayView.swift */,
 				D744A45027E677AB00A7DE9F /* CameraOverlayActionView.swift */,
 				D76EBDEC27E8B8010062D59B /* SettingsView.swift */,
+				D706FD5027FB363700A2C22F /* CameraCaptureButtonView.swift */,
+				D706FD562802FE6600A2C22F /* MediaStateView+Extendsions.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -402,6 +408,8 @@
 				D74E273527AF18D100992242 /* Countdown.swift in Sources */,
 				D74E272627AC2FE900992242 /* CameraService+Extensions.swift in Sources */,
 				D707D95827BE99FC0021E33E /* ShareViewController.swift in Sources */,
+				D706FD572802FE6600A2C22F /* MediaStateView+Extendsions.swift in Sources */,
+				D706FD5127FB363700A2C22F /* CameraCaptureButtonView.swift in Sources */,
 				D7752ED027C4231D00F3EB16 /* ThumbnailView.swift in Sources */,
 				D74E273727AF197200992242 /* PicItSettings.swift in Sources */,
 				D74E273027AC385F00992242 /* CameraModel.swift in Sources */,

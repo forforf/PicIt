@@ -2,9 +2,55 @@
 import SwiftUI
 import Combine
 
-enum PicItMedia: String, CaseIterable {
+public enum PicItMedia: String, CaseIterable {
     case photo = "PHOTO"
     case video = "VIDEO"
+}
+
+// PicItMediaType is sort of like a backing variable to PicItMediaState.
+// the type influences what states are valid
+public enum PicItMediaState: Hashable {
+    case photoReady(_ mediaType: PicItMedia)
+    case videoReady(_ mediaType: PicItMedia)
+    case videoRecording(_ mediaType: PicItMedia)
+}
+
+
+// One use case for CaseIterable is for generating the View_preview for all valid media states.
+// Be aware that this might not cover every possible case
+extension PicItMediaState: CaseIterable {
+    public static var allCases: [PicItMediaState] = [.photoReady(.photo), .videoReady(.video), .videoRecording(.video)]
+}
+
+extension PicItMediaState {
+    
+    // Convenience to initialize mediaState based on the underlying media type
+    init(mediaType: PicItMedia) {
+        switch mediaType {
+        case .photo:
+            self = .photoReady(mediaType)
+        case .video:
+            self = .videoReady(mediaType)
+        }
+    }
+    
+    // Mechanism to update the enum to prevent invalid states
+    // TODO: Is there a way to enforce? For example PicItMediaState.videoReady(.photo) works. It'd be nice to prevent (ideally compile time if possible)
+    // TODO: Would inverting the relationship help (i.e. PicItMediaType.photo(.ready) or PicItMediaType.video(.recording))?
+    func update(mediaType: PicItMedia) -> PicItMediaState {
+        var newState = self
+        switch self {
+        case .photoReady:
+            if mediaType == .video {
+                newState = .videoReady(mediaType)
+            }
+        case .videoReady, .videoRecording:
+            if mediaType == .photo {
+                newState = .photoReady(mediaType)
+            }
+        }
+        return newState
+    }
 }
 
 // Convenience Struct for associating a setting key to its assigned value.
@@ -14,16 +60,16 @@ struct PicItSettingItem<T> {
     var value: T
 }
 
+// TODO: Migrate interval and tolerance into SettingsStore (and UserDefaults)
 struct PicItSetting {
-    static let delay = PicItSettingItem<Double>(key: "PICIT_DELAY", value: 5.0)
     static var interval = 1.0
-    // Note: It seems that an interval/tolerance ~<0.9 will not be met upon running the app again after putting it in the background AND photo capturing has occurred.
-    // interval/tolerance of ~0.1 DO work on initial opening of the app (still not found exaclty why returns from background cause issues
     static var tolerance: Double { return Self.interval * 0.25 }
-//    static var enableCountdown: Bool = true
 }
 
 final class SettingsStore: ObservableObject {
+    static let log = PicItSelfLog<CameraModel>.get()
+    
+    @Published var mediaState: PicItMediaState = PicItMediaState(mediaType: SettingsStore.mediaType)
     
     private enum Keys {
         static let delay = "PICIT_DELAY"
@@ -65,8 +111,17 @@ final class SettingsStore: ObservableObject {
     }
 
     var mediaType: PicItMedia {
-        get { Self.mediaType }
-        set { defaults.set(newValue.rawValue, forKey: Keys.media) }
+        get {
+            Self.mediaType
+        }
+        set {
+            Self.log.debug("Changing Media: old type: \(Self.mediaType) old state: \(mediaState)")// so we make sure they stay consistent here.
+            defaults.set(newValue.rawValue, forKey: Keys.media)
+            // The media state has a dependency on mediaType
+            mediaState = mediaState.update(mediaType: newValue)
+            objectWillChange.send()
+            Self.log.debug("Changed Media: new type: \(newValue) updated to \(Self.mediaType) new state: \(mediaState)")
+        }
     }
     
     var countdownStart: Int {

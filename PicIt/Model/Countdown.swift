@@ -5,7 +5,7 @@ import AVFoundation
 import SwiftUI
 import os.log
 
-enum CountdownState {
+enum CountdownState: CaseIterable {
     case ready
     case inProgress
     case triggering
@@ -42,7 +42,7 @@ class Countdown: ObservableObject {
                     self?.updateStateFromTimer(countdownTimer: time, countdownFrom: countdownFrom)
                 }
         default:
-            Self.log.debug("Invalid starting state: \(String(describing: self.state))")
+            Self.log.notice("Invalid starting state: \(String(describing: self.state))")
         }
     }
     

@@ -9,14 +9,18 @@ import PhotosUI // Used for deleting photos from the Library
 // TODO: Look into using "Result" type in callbacks
 typealias PhotoChangeCompletion = (Bool, Error?) -> Void
 
+//    @State var mediaState: PicItMediaState = {
+//        switch SettingsStore.mediaType {
+//        case .photo:
+//            return .photoReady
+//        case .video:
+//            return .videoReady
+//        }
+//    }()
+
 final class CameraModel: ObservableObject {
     static let log = PicItSelfLog<CameraModel>.get()
-    
-    enum Media {
-        case photo
-        case video
-    }
-    
+
     private let service = CameraService()
     
     @Published var photo: Photo!
@@ -28,6 +32,39 @@ final class CameraModel: ObservableObject {
     @Published var isFlashOn = false
     
     @Published var willCapturePhoto = false
+    
+    // TODO: should mediaState be in view or model?
+//    // TODO: This is not dynamically synced with Settings Store, so it's possible for things to get out of sync.
+//    @Published var mediaState: PicItMediaState = {
+//        switch SettingsStore.mediaType {
+//        case .photo:
+//            return .photoReady
+//        case .video:
+//            return .videoReady
+//        }
+//    }()
+    
+    /* Context
+     Need to update UI to show recording vs non-recording
+     Need to implemnt a saner model (or view model)
+     */
+    // TODO: Figure out how to handle camera action
+//    func cameraAction() {
+//        let media = SettingsStore.mediaType
+//        print("starting state: \(self.mediaState)")
+//        switch self.mediaState {
+//        case .photoReady:
+//            self.capture(media: media)
+//        case .videoReady:
+//            self.mediaState = .videoRecording
+//            self.capture(media: media)
+//        case .videoRecording:
+//            print("TODO: Stop Video Recording")
+//            self.mediaState = .videoReady
+//        }
+//        print("new state: \(self.mediaState)")
+//
+//    }
     
     var alertError: AlertError!
     
@@ -67,25 +104,12 @@ final class CameraModel: ObservableObject {
         .store(in: &self.subscriptions)
     }
     
-    func configure(media: CameraModel.Media) {
+    func configure(media: PicItMedia) {
         service.checkForPermissions()
-        
-        // Map model media enum to service media enum.
-        // Although it seems redundant, it keeps the abstractions clean
-        // TODO: Move to CameraService extension method if we end up using in multiple places.
-        let serviceMedia: CameraService.Media = {
-            switch media {
-            case .photo:
-                return .photo
-            case .video:
-                return .video
-            }
-        }()
-        
-        service.configure(media: serviceMedia)
+        service.configure(media: media)
     }
     
-    func capture(media: CameraModel.Media) {
+    func capture(media: PicItMedia) {
         switch media {
         case .photo:
             service.capturePhoto()
