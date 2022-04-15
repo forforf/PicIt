@@ -1,10 +1,10 @@
 //
 import SwiftUI
 
-// TODO: Remove this dependency
+// TODO: Remove the need for this dependency
 import PhotosUI
 
-typealias PhotoDeletionCompletion = (Bool, Error?) -> Void
+typealias MediaDeletionCompletion = (Bool, Error?) -> Void
 
 struct ShareImageSheet: UIViewControllerRepresentable {
     typealias Callback = (_ activityType: UIActivity.ActivityType?, _ completed: Bool, _ returnedItems: [Any]?, _ error: Error?) -> Void
@@ -40,15 +40,16 @@ struct OutputHandlerView: View {
     @State private var showShareSheet = false
     @Binding var showModal: Bool
     
-    let uiImage: UIImage?
-    let photoLocalId: String
+    let thumbnail: UIImage?
+    let shareItem: Any?
+    let mediaLocalId: String
     let shareAction: NoArgClosure<Void>?
     let deleteAction: NoArgClosure<Void>?
        
     var body: some View {
         VStack {
-            if uiImage != nil {
-                Image(uiImage: uiImage!)
+            if thumbnail != nil {
+                Image(uiImage: thumbnail!)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 240, height: 240)
@@ -67,8 +68,8 @@ struct OutputHandlerView: View {
                 
                 // Delete Button
                 Button(action: {
-                    let deleteCompletion: PhotoDeletionCompletion = { (_, _) in
-                        Self.log.debug("Photo deleted from inside closure")
+                    let deleteCompletion: MediaDeletionCompletion = { (_, _) in
+                        Self.log.debug("Delete Button closure: Deleting media")
                         showModal = false
                         deleteAction?()
                     }
@@ -76,8 +77,8 @@ struct OutputHandlerView: View {
                     // TODO: fetching and deleting should be done in service, not here
                     DispatchQueue.main.async {
                         
-                        let assets = PHAsset.fetchAssets(withLocalIdentifiers: [photoLocalId], options: nil)
-                        Self.log.debug("Fetched photo handler assets: \(String(describing: assets))")
+                        let assets = PHAsset.fetchAssets(withLocalIdentifiers: [mediaLocalId], options: nil)
+                        Self.log.debug("Fetched media handler assets: \(String(describing: assets))")
                         
                         PHPhotoLibrary.shared().performChanges({
                             PHAssetChangeRequest.deleteAssets(assets)
@@ -104,8 +105,9 @@ struct OutputHandlerView: View {
 
                 shareAction?()
             }
-            if uiImage != nil {
-                ShareImageSheet(activityItems: [uiImage as Any], callback: shareCallback)
+            
+            if shareItem != nil {
+                ShareImageSheet(activityItems: [shareItem!], callback: shareCallback)
             }
             
         }
@@ -113,13 +115,22 @@ struct OutputHandlerView: View {
 }
 
 struct OutputHandlerView_Previews: PreviewProvider {
+    static let image = UIImage(systemName: "photo")!
+    
     struct PreviewWrapper: View {
-      @State var showModal: Bool = false
-
-      var body: some View {
-          Text("TBD")
-//          OutputHandlerView(showModal: $showModal, uiImage: UIImage(named: "AppIcon"), photoLocalId: "AppIcon")
-      }
+        @State var showModal: Bool = false
+        
+        var body: some View {
+            Group {
+                OutputHandlerView(
+                    showModal: $showModal,
+                    thumbnail: image,
+                    shareItem: image,
+                    mediaLocalId: "123",
+                    shareAction: {},
+                    deleteAction: {})
+            }
+        }
     }
     static var previews: some View {
         PreviewWrapper()

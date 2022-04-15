@@ -1,3 +1,3 @@
 //
 
-typealias NoArgClosure<T> = () -> T
+public typealias NoArgClosure<T> = () -> T

@@ -1,27 +1,142 @@
-// Source: [SwiftCamera](https://github.com/rorodriguez116/SwiftCamera)
+// Extensively modified from: [SwiftCamera](https://github.com/rorodriguez116/SwiftCamera)
 
 import SwiftUI
 import Combine
 import AVFoundation
 import PhotosUI // Used for deleting photos from the Library
 
+// TODO: Figure out a better strategy (perhaps enum?)
+//       See implementation in scenePhaseManager for more info
+class AvoidStateChange {
+    // The system delete user prompt takes our app out of foreground
+    // but from the user point of view the app never left foreground
+    // so we should skip any state changes related to moving from
+    // background to foreground.
+    // Note: This is actually a bit tricky. We want to distinguish between
+    //   user is mainly in PicIt, but PicIt goes into background
+    // vs
+    //   user leaves PicIt intentionally (sending PicIt to the background)
+    // Example: User swipes on a notification, or does some other task
+    //   related to PicIt, but leaves PicIt briefly. This will trigger
+    //   a countdown restart
+    static var returningFromSystemDeletePrompt: Bool = false
+}
+
 // typealias PhotoHandler = (_ sharePic: Photo) -> Void
 // TODO: Look into using "Result" type in callbacks
 typealias PhotoChangeCompletion = (Bool, Error?) -> Void
 
-//    @State var mediaState: PicItMediaState = {
-//        switch SettingsStore.mediaType {
-//        case .photo:
-//            return .photoReady
-//        case .video:
-//            return .videoReady
-//        }
-//    }()
+protocol CameraModelDependenciesProtocol {
+    var countdownDefaults: CountdownDefaultsProtocol { get }
+    var countdown: Countdown { get }
+    var settings: Settings { get }
+    var service: CameraService { get }
+}
+
+extension CameraModel {
+    
+    struct Dependencies: CameraModelDependenciesProtocol {
+        
+        // Providers generates a new instance of the dependency
+        // We can use this as a way to "reset" those dependencies while keeping the model state
+        public static func serviceProvider() -> CameraService { CameraService() }
+        public static func settingsProvider() -> Settings { Settings() }
+        public let countdownDefaults: CountdownDefaultsProtocol = Self.CountdownDefaults()
+        public let countdown = Countdown()
+        public let settings = Self.settingsProvider()
+        public let service = Self.serviceProvider()
+        
+        // Although it's a deeply nested type, keeping it here has two advantages.
+        // 1. Allows the usage of Self
+        // 2. Avoids polluting the CameraModel (or higher) namespace with a very specific use case.
+        // swiftlint:disable:next nesting
+        struct CountdownDefaults: CountdownDefaultsProtocol {
+            let referenceTimeProvider = { Date().timeIntervalSince1970 }
+            let countdownFrom = Double(Settings.countdownStart)
+            let interval = PicItSetting.interval
+        }
+    }
+}
 
 final class CameraModel: ObservableObject {
+        
+    // TODO: Too much inside the model class, maybe move outside the model?
+    enum MediaMode: Hashable, CaseIterable {
+        case photo(_ state: CameraService.ActionState)
+        case video(_ state: CameraService.ActionState)
+        
+        init(mediaType: PicItMedia) {
+            switch mediaType {
+            // TODO: Probably a way to dry this up, maybe iterate over the cases?
+            case .photo:
+                self = .photo(.notReady)
+            case .video:
+                self = .video(.notReady)
+            }
+        }
+        
+        public static var allCases: [MediaMode] = [
+            .photo(.ready),
+            .photo(.notReady),
+            .photo(.inUse),
+            .video(.ready),
+            .video(.notReady),
+            .video(.inUse)
+        ]
+        
+        // Mechanism to update the enum to prevent invalid states
+        // TODO: Is there a way to enforce? For example PicItMediaState.videoReady(.photo) works. It'd be nice to prevent (ideally compile time if possible)
+        static func updateMedia(currentMode: MediaMode, mediaType: PicItMedia) -> MediaMode {
+            var newMode = currentMode // default is no change to mode
+            switch currentMode {
+            case .photo:
+                if mediaType == .video {
+                    newMode = .video(.notReady)
+                    // TODO: Make ready (perhaps a completion closure)
+                }
+            case .video:
+                if mediaType == .photo {
+                    newMode = .photo(.notReady)
+                    // TODO: Make ready (perhaps a completion closure)
+                }
+            }
+            return newMode
+        }
+        
+        // TODO: Can this be more DRY?
+        static func updateActionState(currentMode: MediaMode, actionState: CameraService.ActionState) -> MediaMode {
+            var newMode = currentMode // default is no change to mode
+            switch currentMode {
+            case .photo:
+                newMode = .photo(actionState)
+            case .video:
+                newMode = .video(actionState)
+            }
+            return newMode
+        }
+    }
+    
     static let log = PicItSelfLog<CameraModel>.get()
 
-    private let service = CameraService()
+    private var service: CameraService
+    private let countdown: Countdown
+    
+    // We allow clients access to settings.
+    // Mainly so we can pass all the settings to the settings view in a single argument
+    var settings: Settings
+    
+    @Published var countdownTime: Double!
+    
+    @Published var mediaType: PicItMedia!
+    
+    @Published var mediaMode: MediaMode = MediaMode(mediaType: Settings.mediaType)
+    
+    @Published var startCountdownAt: Int!
+    
+    // TODO: countdownState should be internal, not published
+    @Published var countdownState: CountdownState!
+    
+//    @Published var mediaState1: PicItMediaState = PicItMediaState(mediaType: SettingsStore.mediaType)
     
     @Published var photo: Photo!
     
@@ -33,48 +148,135 @@ final class CameraModel: ObservableObject {
     
     @Published var willCapturePhoto = false
     
-    // TODO: should mediaState be in view or model?
-//    // TODO: This is not dynamically synced with Settings Store, so it's possible for things to get out of sync.
-//    @Published var mediaState: PicItMediaState = {
-//        switch SettingsStore.mediaType {
-//        case .photo:
-//            return .photoReady
-//        case .video:
-//            return .videoReady
-//        }
-//    }()
-    
-    /* Context
-     Need to update UI to show recording vs non-recording
-     Need to implemnt a saner model (or view model)
-     */
-    // TODO: Figure out how to handle camera action
-//    func cameraAction() {
-//        let media = SettingsStore.mediaType
-//        print("starting state: \(self.mediaState)")
-//        switch self.mediaState {
-//        case .photoReady:
-//            self.capture(media: media)
-//        case .videoReady:
-//            self.mediaState = .videoRecording
-//            self.capture(media: media)
-//        case .videoRecording:
-//            print("TODO: Stop Video Recording")
-//            self.mediaState = .videoReady
-//        }
-//        print("new state: \(self.mediaState)")
-//
-//    }
-    
     var alertError: AlertError!
     
     var session: AVCaptureSession
     
     private var subscriptions = Set<AnyCancellable>()
     
-    init() {
-        self.session = service.session
+    init(_ dependencies: CameraModelDependenciesProtocol) {
+        // using self explicitly for assignemnt clarity
+        self.service = dependencies.service
+        self.session = self.service.session
+        self.countdown = dependencies.countdown
+        self.settings = dependencies.settings
         
+        initModel()
+     }
+    
+    func reset() {
+        subscriptions.removeAll()
+        service = Dependencies.serviceProvider()
+        settings = Dependencies.settingsProvider()
+        countdown.reset()
+        initModel()
+        // TODO: Configure before or after setting media to ready?
+        self.mediaMode = MediaMode.updateActionState(currentMode: self.mediaMode, actionState: .ready)
+        configure(media: mediaType)
+    }
+        
+    func configure(media: PicItMedia) {
+        service.checkForPermissions()
+        service.configure(media: media)
+    }
+
+    func startVideoRecording() {
+        service.startVideoRecording()
+    }
+    
+    func stopVideoRecording() {
+        service.stopVideoRecording()
+    }
+    
+    func capturePhoto() {
+        service.capturePhoto()
+    }
+    
+    func flipCamera() {
+        service.changeCamera()
+    }
+    
+    func zoom(with factor: CGFloat) {
+        service.set(zoom: factor)
+    }
+    
+    func switchFlash() {
+        service.flashMode = service.flashMode == .on ? .off : .on
+    }
+    
+    func countdownStart() {
+        countdown.start(Double(settings.countdownStart))
+    }
+    
+    func countdownRestart() {
+        countdown.restart()
+    }
+    
+    func countdownStop() {
+        countdown.stop()
+    }
+
+    func cameraAction() {
+        Self.log.debug("Entered camera action with media mode: \(mediaMode)")
+        switch mediaMode {
+        case .photo(let state):
+            if state == .ready {
+                capturePhoto()
+            } else {
+                Self.log.warning("State: \(state) was not ready, no photo taken")
+            }
+        case .video(let state):
+            switch state {
+            case .ready:
+                mediaMode = .video(.inUse)
+                startVideoRecording()
+            case .inUse:
+                stopVideoRecording()
+                mediaMode = .video(.ready)
+            default:
+                Self.log.warning("State: \(state) was not ready, no video action taken")
+            }
+        }
+        Self.log.debug("Exited camera action with media mode: \(mediaMode)")
+    }
+    
+    // TODO: Is this even being used? old todo: Not sure if this belongs in the "Camera" model, but it's better than being in the view.
+    func deletePhoto(localId: String, completion: @escaping PhotoChangeCompletion) {
+        DispatchQueue.main.async {
+            
+            let assets = PHAsset.fetchAssets(withLocalIdentifiers: [localId], options: nil)
+            print(assets)
+            
+            PHPhotoLibrary.shared().performChanges({
+                PHAssetChangeRequest.deleteAssets(assets)
+            }, completionHandler: completion)
+        }
+    }
+    
+    func scenePhaseManager(_ newPhase: ScenePhase) {
+        Self.log.info("newPhase: \(String(describing: newPhase))")
+        switch newPhase {
+        case .background, .inactive:
+            reset()
+        case .active:
+            if AvoidStateChange.returningFromSystemDeletePrompt == false {
+                Self.log.info("Reinitialized model")
+                countdownStart()
+            } else {
+                // TODO: Violates SRP ... handling the model changes should not be here, maybe in AvoidStateChange?
+                Self.log.debug("Returning from System Delete, Keep current countdown, should work next try")
+                // remove the old photo from the model so we don't have the old preview lying around.
+                photo = nil
+                AvoidStateChange.returningFromSystemDeletePrompt = false
+            }
+
+        @unknown default:
+            Self.log.warning("Unknown scene phase: \(String(describing: newPhase)). Resetting model")
+            reset()
+        }
+    }
+    
+    private func initModel() {
         service.$photoLocalId.sink { [weak self] (localId) in
             guard let id = localId else { return }
             self?.photoLocalId = id
@@ -102,53 +304,43 @@ final class CameraModel: ObservableObject {
             self?.willCapturePhoto = val
         }
         .store(in: &self.subscriptions)
-    }
-    
-    func configure(media: PicItMedia) {
-        service.checkForPermissions()
-        service.configure(media: media)
-    }
-    
-    func capture(media: PicItMedia) {
-        switch media {
-        case .photo:
-            service.capturePhoto()
-        case .video:
-            print("TODO: Capture Movie")
+        
+        self.countdown.$time.sink { [weak self] time in
+            self?.countdownTime = time
         }
-    }
-    
-    func capturePhoto() {
-        service.capturePhoto()
-    }
-    
-    func flipCamera() {
-        service.changeCamera()
-    }
-    
-    func zoom(with factor: CGFloat) {
-        service.set(zoom: factor)
-    }
-    
-    func switchFlash() {
-        service.flashMode = service.flashMode == .on ? .off : .on
-    }
-    
-    func photoTimer() {
+        .store(in: &self.subscriptions)
+        
+        self.countdown.$state.sink { [weak self] state in
+            self?.countdownState = state
+        }
+        .store(in: &self.subscriptions)
+        
+        self.settings.$mediaType.sink { [weak self] media in
+            // TODO: Does this result in unnecessary renders if newMode == currentMode?
+            let currentMode = self?.mediaMode
+            let newMode = MediaMode.updateMedia(currentMode: currentMode!, mediaType: media)
+            
+            // TODO: Reset model if we change modes.
+            self?.mediaMode = newMode
 
-    }
-    
-    // TODO: Is this even being used? old todo: Not sure if this belongs in the "Camera" model, but it's better than being in the view.
-    func deletePhoto(localId: String, completion: @escaping PhotoChangeCompletion) {
-        DispatchQueue.main.async {
-            
-            let assets = PHAsset.fetchAssets(withLocalIdentifiers: [localId], options: nil)
-            print(assets)
-            
-            PHPhotoLibrary.shared().performChanges({
-                PHAssetChangeRequest.deleteAssets(assets)
-            }, completionHandler: completion)
+//            // TODO: Make this a separate subscription?  Also, figure out how to be it more readable
+//            // basically if we change the media type, we have to reset the media state
+//            if media == .photo && self?.mediaState1 != .photoReady(.photo) {
+//                self?.mediaState1 = PicItMediaState.photoReady(.photo)
+//            }
+//            if media == .video && self?.mediaState1 == .photoReady(.photo) {
+//                self?.mediaState1 = PicItMediaState.videoReady(.video)
+//            }
+            self?.mediaType = media
         }
+        .store(in: &self.subscriptions)
+        
+        self.settings.$countdownStart.sink { [weak self] start in
+            self?.startCountdownAt = start
+        }
+        .store(in: &self.subscriptions)
+        
+        self.mediaMode = MediaMode.updateActionState(currentMode: self.mediaMode, actionState: .ready)
     }
     
 //    func withPhoto(completion: PhotoHandler) {

@@ -8,8 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		D706FD5127FB363700A2C22F /* CameraCaptureButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D706FD5027FB363700A2C22F /* CameraCaptureButtonView.swift */; };
-		D706FD572802FE6600A2C22F /* MediaStateView+Extendsions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D706FD562802FE6600A2C22F /* MediaStateView+Extendsions.swift */; };
 		D707D95827BE99FC0021E33E /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D707D95727BE99FC0021E33E /* ShareViewController.swift */; };
+		D71C5661281029C000BABD72 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D71C5660281029C000BABD72 /* Photo.swift */; };
+		D71C566328102A8E00BABD72 /* AlertError.swift in Sources */ = {isa = PBXBuildFile; fileRef = D71C566228102A8E00BABD72 /* AlertError.swift */; };
 		D744A44F27E60FD800A7DE9F /* CameraOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D744A44E27E60FD800A7DE9F /* CameraOverlayView.swift */; };
 		D744A45127E677AB00A7DE9F /* CameraOverlayActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D744A45027E677AB00A7DE9F /* CameraOverlayActionView.swift */; };
 		D74E26F827AC2F1600992242 /* PicItApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E26F727AC2F1600992242 /* PicItApp.swift */; };
@@ -27,7 +28,7 @@
 		D74E273027AC385F00992242 /* CameraModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E272F27AC385F00992242 /* CameraModel.swift */; };
 		D74E273227AC6E1C00992242 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = D74E273127AC6E1C00992242 /* Settings.bundle */; };
 		D74E273527AF18D100992242 /* Countdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E273427AF18D100992242 /* Countdown.swift */; };
-		D74E273727AF197200992242 /* PicItSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E273627AF197200992242 /* PicItSettings.swift */; };
+		D74E273727AF197200992242 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E273627AF197200992242 /* Settings.swift */; };
 		D74E273927AF2D6700992242 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E273827AF2D6700992242 /* ContentView.swift */; };
 		D74E273D27B29FBC00992242 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D74E273C27B29FBC00992242 /* Assets.xcassets */; };
 		D74E274027B8709A00992242 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E273F27B8709A00992242 /* CountdownView.swift */; };
@@ -36,6 +37,7 @@
 		D7752ED027C4231D00F3EB16 /* ThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7752ECF27C4231D00F3EB16 /* ThumbnailView.swift */; };
 		D7752ED227CE653100F3EB16 /* TimerPublishers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7752ED127CE653100F3EB16 /* TimerPublishers.swift */; };
 		D7752ED427D0E1ED00F3EB16 /* README.MD in Resources */ = {isa = PBXBuildFile; fileRef = D7752ED327D0E1ED00F3EB16 /* README.MD */; };
+		D794C7D2280D978C00A24D25 /* MediaModeView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D794C7D1280D978C00A24D25 /* MediaModeView+Extensions.swift */; };
 		D7ABD43427EFA4ED0072FB0E /* TypeAlias.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7ABD43327EFA4ED0072FB0E /* TypeAlias.swift */; };
 		D7ABD43727EFA8A30072FB0E /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = D7ABD43627EFA8A30072FB0E /* .swiftlint.yml */; };
 		D7ABD43927F0A4750072FB0E /* PicItLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7ABD43827F0A4750072FB0E /* PicItLog.swift */; };
@@ -60,8 +62,9 @@
 
 /* Begin PBXFileReference section */
 		D706FD5027FB363700A2C22F /* CameraCaptureButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureButtonView.swift; sourceTree = "<group>"; };
-		D706FD562802FE6600A2C22F /* MediaStateView+Extendsions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaStateView+Extendsions.swift"; sourceTree = "<group>"; };
 		D707D95727BE99FC0021E33E /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		D71C5660281029C000BABD72 /* Photo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
+		D71C566228102A8E00BABD72 /* AlertError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertError.swift; sourceTree = "<group>"; };
 		D744A44E27E60FD800A7DE9F /* CameraOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraOverlayView.swift; sourceTree = "<group>"; };
 		D744A45027E677AB00A7DE9F /* CameraOverlayActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraOverlayActionView.swift; sourceTree = "<group>"; };
 		D74E26F427AC2F1600992242 /* PicIt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PicIt.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -82,7 +85,7 @@
 		D74E272F27AC385F00992242 /* CameraModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraModel.swift; sourceTree = "<group>"; };
 		D74E273127AC6E1C00992242 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		D74E273427AF18D100992242 /* Countdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Countdown.swift; sourceTree = "<group>"; };
-		D74E273627AF197200992242 /* PicItSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicItSettings.swift; sourceTree = "<group>"; };
+		D74E273627AF197200992242 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		D74E273827AF2D6700992242 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D74E273C27B29FBC00992242 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D74E273F27B8709A00992242 /* CountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownView.swift; sourceTree = "<group>"; };
@@ -91,6 +94,7 @@
 		D7752ECF27C4231D00F3EB16 /* ThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailView.swift; sourceTree = "<group>"; };
 		D7752ED127CE653100F3EB16 /* TimerPublishers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerPublishers.swift; sourceTree = "<group>"; };
 		D7752ED327D0E1ED00F3EB16 /* README.MD */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.MD; sourceTree = "<group>"; };
+		D794C7D1280D978C00A24D25 /* MediaModeView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaModeView+Extensions.swift"; sourceTree = "<group>"; };
 		D7ABD43327EFA4ED0072FB0E /* TypeAlias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeAlias.swift; sourceTree = "<group>"; };
 		D7ABD43627EFA8A30072FB0E /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		D7ABD43827F0A4750072FB0E /* PicItLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicItLog.swift; sourceTree = "<group>"; };
@@ -124,9 +128,11 @@
 		D707D95227B8742E0021E33E /* Service */ = {
 			isa = PBXGroup;
 			children = (
+				D71C566228102A8E00BABD72 /* AlertError.swift */,
 				D74E272127AC2F7C00992242 /* CameraService.swift */,
 				D74E272327AC2FC100992242 /* CameraService+Enums.swift */,
 				D74E272527AC2FE900992242 /* CameraService+Extensions.swift */,
+				D71C5660281029C000BABD72 /* Photo.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -210,7 +216,7 @@
 			children = (
 				D74E272F27AC385F00992242 /* CameraModel.swift */,
 				D74E273427AF18D100992242 /* Countdown.swift */,
-				D74E273627AF197200992242 /* PicItSettings.swift */,
+				D74E273627AF197200992242 /* Settings.swift */,
 				D7752ED127CE653100F3EB16 /* TimerPublishers.swift */,
 			);
 			path = Model;
@@ -229,7 +235,7 @@
 				D744A45027E677AB00A7DE9F /* CameraOverlayActionView.swift */,
 				D76EBDEC27E8B8010062D59B /* SettingsView.swift */,
 				D706FD5027FB363700A2C22F /* CameraCaptureButtonView.swift */,
-				D706FD562802FE6600A2C22F /* MediaStateView+Extendsions.swift */,
+				D794C7D1280D978C00A24D25 /* MediaModeView+Extensions.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -398,20 +404,22 @@
 				D74E274027B8709A00992242 /* CountdownView.swift in Sources */,
 				D7ABD43927F0A4750072FB0E /* PicItLog.swift in Sources */,
 				D74E273927AF2D6700992242 /* ContentView.swift in Sources */,
+				D71C5661281029C000BABD72 /* Photo.swift in Sources */,
 				D74E272427AC2FC100992242 /* CameraService+Enums.swift in Sources */,
 				D7ABD43427EFA4ED0072FB0E /* TypeAlias.swift in Sources */,
 				D74E26F827AC2F1600992242 /* PicItApp.swift in Sources */,
 				D74E272227AC2F7C00992242 /* CameraService.swift in Sources */,
 				D74E272A27AC304400992242 /* PhotoCaptureProcessor.swift in Sources */,
 				D74E272827AC301900992242 /* ImageResizer.swift in Sources */,
+				D794C7D2280D978C00A24D25 /* MediaModeView+Extensions.swift in Sources */,
 				D744A45127E677AB00A7DE9F /* CameraOverlayActionView.swift in Sources */,
 				D74E273527AF18D100992242 /* Countdown.swift in Sources */,
 				D74E272627AC2FE900992242 /* CameraService+Extensions.swift in Sources */,
 				D707D95827BE99FC0021E33E /* ShareViewController.swift in Sources */,
-				D706FD572802FE6600A2C22F /* MediaStateView+Extendsions.swift in Sources */,
+				D71C566328102A8E00BABD72 /* AlertError.swift in Sources */,
 				D706FD5127FB363700A2C22F /* CameraCaptureButtonView.swift in Sources */,
 				D7752ED027C4231D00F3EB16 /* ThumbnailView.swift in Sources */,
-				D74E273727AF197200992242 /* PicItSettings.swift in Sources */,
+				D74E273727AF197200992242 /* Settings.swift in Sources */,
 				D74E273027AC385F00992242 /* CameraModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

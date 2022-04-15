@@ -1,4 +1,4 @@
-// Source: [SwiftCamera](https://github.com/rorodriguez116/SwiftCamera)
+// Modified from: [SwiftCamera](https://github.com/rorodriguez116/SwiftCamera)
 
 import Foundation
 import Combine
@@ -7,53 +7,7 @@ import Photos
 import UIKit
 
 // MARK: Class Camera Service, handles setup of AVFoundation needed for a basic camera app.
-public struct Photo: Identifiable, Equatable {
-//    The ID of the captured photo
-    public var id: String
-//    Data representation of the captured photo
-    public var originalData: Data
-    
-    public init(id: String = UUID().uuidString, originalData: Data) {
-        self.id = id
-        self.originalData = originalData
-    }
-}
-
-public struct AlertError {
-    public var title: String = ""
-    public var message: String = ""
-    public var primaryButtonTitle = "Accept"
-    public var secondaryButtonTitle: String?
-    public var primaryAction: (() -> Void)?
-    public var secondaryAction: (() -> Void)?
-    
-    public init(title: String = "", message: String = "", primaryButtonTitle: String = "Accept", secondaryButtonTitle: String? = nil, primaryAction: (() -> Void)? = nil, secondaryAction: (() -> Void)? = nil) {
-        self.title = title
-        self.message = message
-        self.primaryAction = primaryAction
-        self.primaryButtonTitle = primaryButtonTitle
-        self.secondaryAction = secondaryAction
-    }
-}
-
-extension Photo {
-    public var compressedData: Data? {
-        ImageResizer(targetWidth: 800).resize(data: originalData)?.jpegData(compressionQuality: 0.5)
-    }
-    public var thumbnailData: Data? {
-        ImageResizer(targetWidth: 100).resize(data: originalData)?.jpegData(compressionQuality: 0.5)
-    }
-    public var thumbnailImage: UIImage? {
-        guard let data = thumbnailData else { return nil }
-        return UIImage(data: data)
-    }
-    public var image: UIImage? {
-        guard let data = compressedData else { return nil }
-        return UIImage(data: data)
-    }
-}
-
-public class CameraService {
+public class CameraService: NSObject {
     static let log = PicItSelfLog<CameraService>.get()
     
     typealias PhotoCaptureSessionID = String
@@ -112,13 +66,7 @@ public class CameraService {
     private var movieFileOutput: AVCaptureMovieFileOutput?
     
     public func configure(media: PicItMedia) {
-        var configurator = configurePhotoSession // default
-        switch media {
-        case .photo:
-            configurator = self.configurePhotoSession
-        case .video:
-            configurator = self.configureVideoSession
-        }
+
         /*
          Setup the capture session.
          In general, it's not safe to mutate an AVCaptureSession or any of its
@@ -130,8 +78,24 @@ public class CameraService {
          that the main queue isn't blocked, which keeps the UI responsive.
          */
         sessionQueue.async {
-            configurator()
+            self.session.beginConfiguration()
+            self.configureSession(media)
+            self.session.commitConfiguration()
+            if self.setupResult == .success {
+                self.isConfigured = true
+                Self.log.info("Session configured")
+                self.start()
+                Self.log.info("Session started")
+            } else {
+                self.configurationFailed("Setup result was: \(self.setupResult)")
+            }
         }
+    }
+    
+    // TODO: Only clear config if it's invalid (basically if setup for video, but now photo)
+    public func clearConfig() {
+        clearCaptureOutputs()
+        clearCaptureInputs()
     }
     
     // MARK: Checks for user's permisions
@@ -224,9 +188,11 @@ public class CameraService {
     private func addAudioInputToSession() {
         // Add an audio input device.
         do {
-            let audioDevice = AVCaptureDevice.default(for: .audio)
-            let audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice!)
-            
+            guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
+                Self.log.warning("Default Audio Device not found")
+                return
+            }
+            let audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice)
             if session.canAddInput(audioDeviceInput) {
                 session.addInput(audioDeviceInput)
             } else {
@@ -275,15 +241,16 @@ public class CameraService {
         Self.log.debug("Added video input to session")
     }
     
-    private func configurePhotoSession() {
-        guard validateSetup() else { return }
-        
-        session.beginConfiguration()
-        
-        session.sessionPreset = .photo
-        
-        addVideoInputToSession()
-        
+    private func updateSessionPresets(_ media: PicItMedia) {
+        switch media {
+        case .photo:
+            session.sessionPreset = .photo
+        case .video:
+            session.sessionPreset = .high
+        }
+    }
+    
+    private func addPhotoOutputToSession() {
         // Add the photo output.
         if session.canAddOutput(photoOutput) {
             session.addOutput(photoOutput)
@@ -295,26 +262,9 @@ public class CameraService {
             configurationFailed("Could not add photo output to the session")
             return
         }
-        
-        session.commitConfiguration()
-        
-        self.isConfigured = true
-        Self.log.info("Photo Session configured")
-        
-        self.start()
-        Self.log.info("Photo Session started")
     }
- 
-    private func configureVideoSession() {
-        guard validateSetup() else { return }
-        
-        session.beginConfiguration()
-        
-        session.sessionPreset = .high
-        
-        addVideoInputToSession()
-        addAudioInputToSession()
-        
+    
+    private func addVideoOutputToSession() {
         let movieFileOutput = AVCaptureMovieFileOutput()
         
         if session.canAddOutput(movieFileOutput) {
@@ -334,14 +284,36 @@ public class CameraService {
         }
         
         self.movieFileOutput = movieFileOutput
-
-        session.commitConfiguration()
-        self.isConfigured = true
+    }
+    
+    private func updateSessionOutput(_ media: PicItMedia) {
+        switch media {
+        case .photo:
+            addPhotoOutputToSession()
+        case .video:
+            addVideoOutputToSession()
+        }
+    }
+    
+    private func configureSession(_ media: PicItMedia) {
+        updateSessionPresets(media)
         
-        Self.log.info("Video Session configured")
+        addVideoInputToSession()
+        addAudioInputToSession()
         
-        self.start()
-        Self.log.info("Video Session started")
+        updateSessionOutput(media)
+    }
+    
+    private func clearCaptureOutputs() {
+        for output in session.outputs {
+                session.removeOutput(output)
+            }
+    }
+    
+    private func clearCaptureInputs() {
+        for input in session.inputs {
+                session.removeInput(input)
+            }
     }
     
     // MARK: Device Configuration
@@ -589,6 +561,109 @@ public class CameraService {
         } else {
             // TODO: Replace with proper error handling
             print("Setup Failed configuration")
+        }
+    }
+}
+
+extension CameraService: AVCaptureFileOutputRecordingDelegate {
+    public func startVideoRecording() {
+        guard let output = movieFileOutput else {
+            Self.log.warning("Tried to start video recoring without any output")
+            return
+        }
+        if output.isRecording {
+            Self.log.warning("Tried to start video recoring when already recording")
+        } else {
+            // Start Recording!
+
+            let movieFileOutputConnection = output.connection(with: .video)
+//            // Update the orientation on the movie file output video connection before recording.
+//            movieFileOutputConnection?.videoOrientation = videoPreviewLayerOrientation!
+            
+            let availableVideoCodecTypes = output.availableVideoCodecTypes
+            
+            if availableVideoCodecTypes.contains(.hevc) {
+                output.setOutputSettings([AVVideoCodecKey: AVVideoCodecType.hevc], for: movieFileOutputConnection!)
+            }
+            
+            // Start recording video to a temporary file.
+            let outputFileName = NSUUID().uuidString
+            let outputFilePath = (NSTemporaryDirectory() as NSString).appendingPathComponent((outputFileName as NSString).appendingPathExtension("mov")!)
+            output.startRecording(to: URL(fileURLWithPath: outputFilePath), recordingDelegate: self)
+        }
+        Self.log.debug("Starting video recording")
+    }
+    
+    public func stopVideoRecording() {
+        movieFileOutput?.stopRecording()
+        Self.log.debug("Stopping video recording")
+    }
+
+    /// - Tag: DidStartRecording
+    public func fileOutput(_ output: AVCaptureFileOutput, didStartRecordingTo fileURL: URL, from connections: [AVCaptureConnection]) {
+        Self.log.warning("Started vidoe recording .... not sure if anything needs to be done here")
+//        // Enable the Record button to let the user stop recording.
+//        DispatchQueue.main.async {
+//            self.recordButton.isEnabled = true
+//            self.recordButton.setImage(#imageLiteral(resourceName: "CaptureStop"), for: [])
+//        }
+    }
+    
+    public func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+        Self.log.warning("TODO: Need to handle output when recording finished ... ie save to photo library")
+        func cleanup() {
+            let path = outputFileURL.path
+            if FileManager.default.fileExists(atPath: path) {
+                do {
+                    try FileManager.default.removeItem(atPath: path)
+                } catch {
+                    print("Could not remove file at url: \(outputFileURL)")
+                }
+            }
+            
+//            if let currentBackgroundRecordingID = backgroundRecordingID {
+//                backgroundRecordingID = UIBackgroundTaskIdentifier.invalid
+//
+//                if currentBackgroundRecordingID != UIBackgroundTaskIdentifier.invalid {
+//                    UIApplication.shared.endBackgroundTask(currentBackgroundRecordingID)
+//                }
+//            }
+        }
+
+        var success = true
+        
+        if error != nil {
+            print("Movie file finishing error: \(String(describing: error))")
+            success = (((error! as NSError).userInfo[AVErrorRecordingSuccessfullyFinishedKey] as AnyObject).boolValue)!
+        }
+        
+        // TODO: Generate thumbnail preview
+        if success {
+            // Check the authorization status.
+            PHPhotoLibrary.requestAuthorization { status in
+                if status == .authorized {
+                    // Save the movie file to the photo library and cleanup.
+                    PHPhotoLibrary.shared().performChanges({
+                        let options = PHAssetResourceCreationOptions()
+                        options.shouldMoveFile = true
+                        let creationRequest = PHAssetCreationRequest.forAsset()
+                        creationRequest.addResource(with: .video, fileURL: outputFileURL, options: options)
+                        
+//                        // Specify the location the movie was recoreded
+//                        creationRequest.location = self.locationManager.location
+                    }, completionHandler: { success, error in
+                        if !success {
+                            print("AVCam couldn't save the movie to your photo library: \(String(describing: error))")
+                        }
+                        cleanup()
+                    }
+                    )
+                } else {
+                    cleanup()
+                }
+            }
+        } else {
+            cleanup()
         }
     }
 }

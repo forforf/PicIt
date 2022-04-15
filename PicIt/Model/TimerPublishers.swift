@@ -19,16 +19,16 @@ struct TimerPublishers {
     }
     
     // Converts interval into elapsedTime (given a starting time `startAt`)
-    func elapsedPublisherClosure(startAt: TimeInterval, interval: TimeInterval) -> IntervalMapPublisher {
+    func elapsedPublisherClosure(referenceTime: TimeInterval, interval: TimeInterval) -> IntervalMapPublisher {
         return self.intervalPublisher(interval: interval)
             .map({ (timeInterval) in
-                return timeInterval - startAt
+                return timeInterval - referenceTime
             })
     }
     
     // Converts an elapsedTime into a countdown timer, given `countdownFrom`
-    func countdownPublisher(startAt: TimeInterval, countdownFrom: Double, interval: TimeInterval = defaultInterval) -> IntervalMapPublisher {
-        return self.elapsedPublisherClosure(startAt: startAt, interval: interval)
+    func countdownPublisher(countdownFrom: Double, referenceTime: TimeInterval, interval: TimeInterval = defaultInterval) -> IntervalMapPublisher {
+        return self.elapsedPublisherClosure(referenceTime: referenceTime, interval: interval)
             .map({elapsedTime in
                 return countdownFrom - elapsedTime
             })

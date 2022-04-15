@@ -5,6 +5,8 @@ import AVFoundation
 import SwiftUI
 import os.log
 
+typealias ReferenceTimeProvider = () -> TimeInterval
+
 enum CountdownState: CaseIterable {
     case ready
     case inProgress
@@ -14,8 +16,26 @@ enum CountdownState: CaseIterable {
     case undefined
 }
 
+protocol CountdownDefaultsProtocol {
+    var referenceTimeProvider: ReferenceTimeProvider { get }
+    var countdownFrom: Double { get }
+    var interval: TimeInterval { get }
+}
+
+// In most cases the client should be providing the defaults, but
+// these fallbacks can provide a starting point and guide.
+struct CountdownFallbackDefaults: CountdownDefaultsProtocol {
+    let referenceTimeProvider = { Date().timeIntervalSince1970 }
+    let countdownFrom = 5.0
+    let interval = 0.5
+}
+
+// TODO: Rename "startAt" to referenceTime.
+// referenceTime is the absolute time when the countdown starts. In most cases this will be the current time.
+// but for testing (and added feature flexibility) it is useful to specify a specific time.
+// TODO: Pass a referenceTimeProvider in init that will execute on start to prive the timeZero time
+// which is usually
 class Countdown: ObservableObject {
-    static let defaultInterval = PicItSetting.interval
     static let log = PicItSelfLog<Countdown>.get()
     
     @Published private(set) var time = 0.0
@@ -23,20 +43,39 @@ class Countdown: ObservableObject {
     
     private var cancellable: AnyCancellable?
     private var timerPublishers = TimerPublishers()
+    private var defaults: CountdownDefaultsProtocol
     
-    init() {
+    init(defaults: CountdownDefaultsProtocol = CountdownFallbackDefaults()) {
+        self.defaults = defaults
         state = .ready
         Self.log.debug("Countdown Initialized to ready state")
     }
     
-    func start(_ interval: TimeInterval = defaultInterval,
-               startAt: TimeInterval = Date().timeIntervalSince1970, countdownFrom: Double = Double(SettingsStore.countdownStart)) {
+    func reset() {
+        cancellable?.cancel()
+        switch state {
+        case .ready:
+            break
+        case .inProgress, .triggering, .stopped, .complete:
+            state = .ready
+        case .undefined:
+            Self.log.warning("Resetting from an undefined state")
+            state = .ready
+        }
+    }
+    
+    func start(_ countdownFrom: Double? = nil,
+               interval: TimeInterval? = nil,
+               referenceTime: TimeInterval? = nil) {
+        let interval = interval ?? defaults.interval
+        let referenceTime = referenceTime ?? defaults.referenceTimeProvider()
+        let countdownFrom = countdownFrom ?? defaults.countdownFrom
         Self.log.debug("Countdown attempting to start from state: \(String(describing: self.state))")
         cancellable?.cancel() // just in case
         switch state {
         case .ready:
             Self.log.debug("Starting Countdown from \(countdownFrom)")
-            cancellable = timerPublishers.countdownPublisher(startAt: startAt, countdownFrom: countdownFrom, interval: interval)
+            cancellable = timerPublishers.countdownPublisher(countdownFrom: countdownFrom, referenceTime: referenceTime, interval: interval)
                 .sink { [weak self] time in
                     self?.time = time
                     self?.updateStateFromTimer(countdownTimer: time, countdownFrom: countdownFrom)
@@ -46,7 +85,7 @@ class Countdown: ObservableObject {
         }
     }
     
-    // Basically start, but with a cleaner type signature,
+    // Basically start, but with a cleaner type signature that uses the ,
     // instead of (TimeInterval, TimeInterval, Double) -> Void, it is () -> Void
     func restart() {
         start()
