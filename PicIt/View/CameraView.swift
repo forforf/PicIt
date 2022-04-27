@@ -116,7 +116,7 @@ struct CameraView: View {
                         ThumbnailView(
                             thumbnailImage: model.thumbnail,
                             shareItem: model.shareItem,
-                            localId: model.photoLocalId,
+                            localId: model.mediaLocalId,
                                       shareAction: {
                             Self.log.debug("called shareAction in ThumbnailView closure")
 

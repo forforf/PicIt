@@ -136,11 +136,14 @@ final class CameraModel: ObservableObject {
     // TODO: countdownState should be internal, not published
     @Published var countdownState: CountdownState!
     
-//    @Published var mediaState1: PicItMediaState = PicItMediaState(mediaType: SettingsStore.mediaType)
-    
     @Published var photo: Photo!
     
-    @Published var photoLocalId: String!
+    // thumbnail can come from a photo or video
+    @Published var thumbnail: UIImage!
+    
+    @Published var shareItem: Any!
+    
+    @Published var mediaLocalId: String!
     
     @Published var showAlertError = false
     
@@ -161,23 +164,37 @@ final class CameraModel: ObservableObject {
         self.countdown = dependencies.countdown
         self.settings = dependencies.settings
         
-        initModel()
+        addSubscriptions()
      }
     
+    // TODO: Fix. Preview layer freezes on reload if media mode is changed.
+    // TODO: This may not be in use anymore
     func reset() {
         subscriptions.removeAll()
-        service = Dependencies.serviceProvider()
-        settings = Dependencies.settingsProvider()
         countdown.reset()
-        initModel()
+//        service.clearConfig()
+        settings = Dependencies.settingsProvider()
+        service = Dependencies.serviceProvider()
+        session = service.session
         // TODO: Configure before or after setting media to ready?
-        self.mediaMode = MediaMode.updateActionState(currentMode: self.mediaMode, actionState: .ready)
-        configure(media: mediaType)
+        addSubscriptions()
+        configure(media: mediaType, didConfigure: {
+            self.mediaMode = MediaMode.updateActionState(currentMode: self.mediaMode, actionState: .ready)
+        })
+        
+    }
+    
+    func resetMode() {
+        countdown.reset()
+        configure(media: mediaType, didConfigure: {
+            self.mediaMode = MediaMode.updateActionState(currentMode: self.mediaMode, actionState: .ready)
+        })
+        
     }
         
-    func configure(media: PicItMedia) {
+    func configure(media: PicItMedia, didConfigure: NoArgClosure<Void>? = nil) {
         service.checkForPermissions()
-        service.configure(media: media)
+        service.configure(media: media, didConfigure: didConfigure)
     }
 
     func startVideoRecording() {
@@ -257,35 +274,52 @@ final class CameraModel: ObservableObject {
         Self.log.info("newPhase: \(String(describing: newPhase))")
         switch newPhase {
         case .background, .inactive:
-            reset()
+            Self.log.debug("App Sent to background")
+            // We call reset here so we don't have to call it inline while moving to active state
+            // (a bit better performance this way)
+            resetMode()
         case .active:
             if AvoidStateChange.returningFromSystemDeletePrompt == false {
-                Self.log.info("Reinitialized model")
                 countdownStart()
             } else {
                 // TODO: Violates SRP ... handling the model changes should not be here, maybe in AvoidStateChange?
                 Self.log.debug("Returning from System Delete, Keep current countdown, should work next try")
                 // remove the old photo from the model so we don't have the old preview lying around.
                 photo = nil
+                thumbnail = nil
+                // remove video too
                 AvoidStateChange.returningFromSystemDeletePrompt = false
             }
 
         @unknown default:
             Self.log.warning("Unknown scene phase: \(String(describing: newPhase)). Resetting model")
-            reset()
+            resetMode()
         }
     }
     
-    private func initModel() {
-        service.$photoLocalId.sink { [weak self] (localId) in
+    private func addSubscriptions() {
+        service.$mediaLocalId.sink { [weak self] (localId) in
             guard let id = localId else { return }
-            self?.photoLocalId = id
+            Self.log.debug("Created localId: \(id)")
+            self?.mediaLocalId = id
         }
         .store(in: &self.subscriptions)
         
         service.$photo.sink { [weak self] (photo) in
             guard let pic = photo else { return }
             self?.photo = pic
+        }
+        .store(in: &self.subscriptions)
+        
+        service.$thumbnail.sink { [weak self] (val) in
+            guard let thumb = val else { return }
+            self?.thumbnail = thumb
+        }
+        .store(in: &self.subscriptions)
+        
+        service.$shareItem.sink { [weak self] (val) in
+            guard let shareItem = val else { return }
+            self?.shareItem = shareItem
         }
         .store(in: &self.subscriptions)
         

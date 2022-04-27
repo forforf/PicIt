@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		D706FD5127FB363700A2C22F /* CameraCaptureButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D706FD5027FB363700A2C22F /* CameraCaptureButtonView.swift */; };
-		D707D95827BE99FC0021E33E /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D707D95727BE99FC0021E33E /* ShareViewController.swift */; };
 		D71C5661281029C000BABD72 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D71C5660281029C000BABD72 /* Photo.swift */; };
 		D71C566328102A8E00BABD72 /* AlertError.swift in Sources */ = {isa = PBXBuildFile; fileRef = D71C566228102A8E00BABD72 /* AlertError.swift */; };
 		D744A44F27E60FD800A7DE9F /* CameraOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D744A44E27E60FD800A7DE9F /* CameraOverlayView.swift */; };
@@ -62,7 +61,6 @@
 
 /* Begin PBXFileReference section */
 		D706FD5027FB363700A2C22F /* CameraCaptureButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureButtonView.swift; sourceTree = "<group>"; };
-		D707D95727BE99FC0021E33E /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		D71C5660281029C000BABD72 /* Photo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
 		D71C566228102A8E00BABD72 /* AlertError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertError.swift; sourceTree = "<group>"; };
 		D744A44E27E60FD800A7DE9F /* CameraOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraOverlayView.swift; sourceTree = "<group>"; };
@@ -137,14 +135,6 @@
 			path = Service;
 			sourceTree = "<group>";
 		};
-		D707D95927BE9CCD0021E33E /* ViewController */ = {
-			isa = PBXGroup;
-			children = (
-				D707D95727BE99FC0021E33E /* ShareViewController.swift */,
-			);
-			path = ViewController;
-			sourceTree = "<group>";
-		};
 		D74E26EB27AC2F1600992242 = {
 			isa = PBXGroup;
 			children = (
@@ -176,7 +166,6 @@
 				D7ABD43827F0A4750072FB0E /* PicItLog.swift */,
 				D74E273E27B86FFA00992242 /* View */,
 				D74E273C27B29FBC00992242 /* Assets.xcassets */,
-				D707D95927BE9CCD0021E33E /* ViewController */,
 				D74E273327AF189B00992242 /* Model */,
 				D707D95227B8742E0021E33E /* Service */,
 				D74E26FD27AC2F1700992242 /* Preview Content */,
@@ -415,7 +404,6 @@
 				D744A45127E677AB00A7DE9F /* CameraOverlayActionView.swift in Sources */,
 				D74E273527AF18D100992242 /* Countdown.swift in Sources */,
 				D74E272627AC2FE900992242 /* CameraService+Extensions.swift in Sources */,
-				D707D95827BE99FC0021E33E /* ShareViewController.swift in Sources */,
 				D71C566328102A8E00BABD72 /* AlertError.swift in Sources */,
 				D706FD5127FB363700A2C22F /* CameraCaptureButtonView.swift in Sources */,
 				D7752ED027C4231D00F3EB16 /* ThumbnailView.swift in Sources */,
