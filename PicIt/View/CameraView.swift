@@ -105,6 +105,7 @@ struct CameraView: View {
                         // .animation(.easeInOut)
                         
                         CameraOverlayView(
+                            countdownTimer: model.countdownTime,
                             countdownState: model.countdownState,
                             doPause: model.countdownStop,
                             doRestart: model.countdownRestart
