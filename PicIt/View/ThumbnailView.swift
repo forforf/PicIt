@@ -1,14 +1,14 @@
 //
 
 import SwiftUI
-import os.log
 
 // typealias Action = () -> Void
 
 struct ThumbnailImageView: View {
-    static let log = Logger(subsystem: "us.joha.PicIt", category: "ThumbnailImageView")
+    static let log = PicItSelfLog<ThumbnailImageView>.get()
     
-    let image: UIImage
+    let thumbnail: UIImage
+    let shareItem: Any
     let localId: String
     let shareAction: NoArgClosure<Void>
     let deleteAction: NoArgClosure<Void>
@@ -16,17 +16,22 @@ struct ThumbnailImageView: View {
     @State private var showOutputModal = false
 
     var body: some View {
-        Image(uiImage: image)
+        Image(uiImage: thumbnail)
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .frame(width: 60, height: 60)
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .gesture(TapGesture().onEnded({_ in
                 Self.log.debug("Tapped Image with id: \(localId)")
                 self.showOutputModal.toggle()
             }))
             .sheet(isPresented: $showOutputModal) {
-                OutputHandlerView(showModal: $showOutputModal, uiImage: image, photoLocalId: localId, shareAction: shareAction, deleteAction: deleteAction)
+                OutputHandlerView(
+                    showModal: $showOutputModal,
+                    thumbnail: thumbnail,
+                    shareItem: shareItem,
+                    mediaLocalId: localId, // used to identify item to be deleted
+                    shareAction: shareAction,
+                    deleteAction: deleteAction)
             }
         // .animation(.spring())
     }
@@ -36,14 +41,14 @@ struct ThumbnailImageView: View {
 struct ThumbnailEmptyView: View {
     var body: some View {
         RoundedRectangle(cornerRadius: 10)
-            .frame(width: 60, height: 60, alignment: .center)
             .foregroundColor(.yellow)
     }
 }
 
 struct ThumbnailView: View {
     
-    let photo: Photo?
+    let thumbnailImage: UIImage?
+    let shareItem: Any?
     let localId: String?
     let shareAction: NoArgClosure<Void>
     let deleteAction: NoArgClosure<Void>
@@ -51,19 +56,27 @@ struct ThumbnailView: View {
     var body: some View {
         Group {
             
-            if photo?.image != nil {
-                let photoLocalId = localId ?? ""
-                ThumbnailImageView(image: photo!.image!, localId: photoLocalId, shareAction: shareAction, deleteAction: deleteAction)
+            if thumbnailImage != nil {
+                let mediaLocalId = localId ?? ""
+                ThumbnailImageView(
+                    thumbnail: thumbnailImage!,
+                    shareItem: shareItem!,
+                    localId: mediaLocalId, // used to find resource to delete
+                    shareAction: shareAction,
+                    deleteAction: deleteAction)
             } else {
                 ThumbnailEmptyView()
             }
         }
+        .frame(width: 60, height: 60)
     }
 }
 
 struct ThumbnailView_Previews: PreviewProvider {
+    static let image = UIImage(systemName: "photo")!
+    
     static var previews: some View {
-        Text("TBD")
-//        ThumbnailView(photo: nil, localId: "AppIcon", shareAction: {})
+        ThumbnailView(thumbnailImage: nil, shareItem: nil, localId: "AppIcon", shareAction: {}, deleteAction: {})
+        ThumbnailView(thumbnailImage: image, shareItem: image, localId: "AppIcon", shareAction: {}, deleteAction: {})
     }
 }

@@ -17,7 +17,7 @@ struct SettingRowView: View {
 struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
     
-    @EnvironmentObject var settings: SettingsStore
+    @ObservedObject var settings: Settings
     
     var body: some View {
         
@@ -55,7 +55,7 @@ struct SettingsView: View {
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingsView().environmentObject(SettingsStore())
+        SettingsView(settings: Settings())
         
     }
 }

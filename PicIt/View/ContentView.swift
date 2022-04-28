@@ -3,13 +3,15 @@
 import SwiftUI
 
 struct ContentView: View {
+    static let log = PicItSelfLog<ContentView>.get()
     
-    // StateObject because this is the view that creates the Observable Countdown()
-    // Consider changing to EnvironmentObject if many or deep views need access to it.
-    @StateObject var countdown = Countdown()
+    @Environment(\.scenePhase) var scenePhase
+    
+    @StateObject var cameraModel = CameraModel(CameraModel.Dependencies())
     
     var body: some View {
-        CameraView(countdown: countdown).environmentObject(SettingsStore())
+        CameraView(model: cameraModel)
+            .onChange(of: scenePhase, perform: cameraModel.scenePhaseManager)
     }
 }
 

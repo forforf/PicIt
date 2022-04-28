@@ -71,3 +71,24 @@ To be more concrete: When deleting an image, the built-in iOS Delete dialog ("Al
 As a compromise it has a longish/slightly annoying name: `AvoidStateChange.returningFromSystemDeletePrompt`. This flag is checked upon returning to the active state, and will only start the countdown when it is false. This approach seems to have solved the performance issue.
 
 **Update**: The performance issue returned after a refactor, and this time I was able to identify the root cause. In this case, there was a closure (deleteAction) that held a reference to the camera model (specifically the line of code was `self.model.photo = nil` ). When this code was contained in the closure, the return from background had terrible performance. The fix was to move the code from the closure and handle it as we do the countdown based on the global `AvoidStateChange.returningFromSystemDeletePrompt` flag.
+
+
+## Logging
+I **really** wanted a way to log a class/struct without hardcoding the name of the class/struct as a string into the logger. After several experimentations I settled on a way that I can live with.
+
+Usage:
+```swift
+class Foo {
+    static let log = PicItSelfLog<Foo>.get()
+    
+    ...
+    func bar() {
+        log.debug("Log Message")
+    }
+}
+
+//=> bar() generates the log message:
+"2022-03-27 15:44:28.775369-0400 PicIt[3963:3270182] [Foo] Log Message"
+```
+
+I'd be happier if I could figure out an elegant way to skip the `<Foo>` generics, but I'm not sure it's possible given that typing is static at compile time.

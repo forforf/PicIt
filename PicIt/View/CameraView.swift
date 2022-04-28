@@ -4,47 +4,14 @@
 
 import SwiftUI
 import Combine
-import os.log
-
-class AvoidStateChange {
-    // The system delete user prompt takes our app out of foreground
-    // but from the user point of view the app never left foreground
-    // so we should skip any state changes related to moving from
-    // background to foreground.
-    static var returningFromSystemDeletePrompt: Bool = false
-}
 
 struct CameraView: View {
-    static let log = Logger(subsystem: "us.joha.PicIt", category: "CameraView")
-
-    @Environment(\.scenePhase) var scenePhase
-    
-    @StateObject var model = CameraModel()
-    
+    static let log = PicItSelfLog<CameraView>.get()
+        
     @State var currentZoomFactor: CGFloat = 1.0
     @State var showSettings: Bool = false
-    
-    @ObservedObject var countdown: Countdown
-    
-    var captureButton: some View {
-        Button(action: {
-            model.capturePhoto()
-        }, label: {
-            CountdownView(countdown: countdown)
-        })
+    @ObservedObject var model: CameraModel
         
-        // Note that countdown can be in a disabled state.
-        // In which case nothing is ever published, so onReceive never fires
-            .onReceive(countdown.$state, perform: { countdownState in
-                Self.log.info("Received Countdown state change: \(String(describing: countdownState))")
-                // Here is where we should do any actions when the countdown is reached
-                if countdownState == .triggering {
-                    // Take picture
-                    model.capturePhoto()
-                }
-            })
-    }
-    
     var flipCameraButton: some View {
         Button(action: {
             model.flipCamera()
@@ -62,7 +29,7 @@ struct CameraView: View {
         Button(action: {
             showSettings.toggle()
             if showSettings {
-                countdown.stop()
+                model.countdownStop()
             }
         }, label: {
             Image(systemName: "gearshape.fill")
@@ -70,10 +37,10 @@ struct CameraView: View {
         })
             .accentColor(.white)
             .sheet(isPresented: $showSettings) {
-                SettingsView()
+                SettingsView(settings: model.settings)
             }
     }
-    
+
     var body: some View {
         GeometryReader { reader in
             ZStack {
@@ -116,7 +83,12 @@ struct CameraView: View {
                                 })
                             )
                             .onAppear {
-                                model.configure()
+                                guard let media = model.mediaType else {
+                                    Self.log.warning("Unable to read media type settings (i.e., photo or video")
+                                    return
+                                }
+                                CameraView.log.debug("Configure after appear using media: \(String(describing: media))")
+                                model.configure(media: media)
                             }
                             .alert(isPresented: $model.showAlertError, content: {
                                 Alert(title: Text(model.alertError.title), message: Text(model.alertError.message), dismissButton: .default(Text(model.alertError.primaryButtonTitle), action: {
@@ -133,15 +105,18 @@ struct CameraView: View {
                         // .animation(.easeInOut)
                         
                         CameraOverlayView(
-                            countdown: countdown,
-                            doPause: countdown.stop,
-                            doRestart: countdown.restart
+                            countdownState: model.countdownState,
+                            doPause: model.countdownStop,
+                            doRestart: model.countdownRestart
                         )
 
                     }
                     
                     HStack {
-                        ThumbnailView(photo: model.photo, localId: model.photoLocalId,
+                        ThumbnailView(
+                            thumbnailImage: model.thumbnail,
+                            shareItem: model.shareItem,
+                            localId: model.mediaLocalId,
                                       shareAction: {
                             Self.log.debug("called shareAction in ThumbnailView closure")
 
@@ -153,8 +128,25 @@ struct CameraView: View {
                         
                         Spacer()
                         
-                        captureButton
-                        
+                        VStack {
+                            CameraCaptureButton(
+                                countdownTime: model.countdownTime,
+                                countdownState: model.countdownState,
+                                mediaMode: model.mediaMode,
+                                cameraAction: model.cameraAction)
+                            // Note that countdown can be in a disabled state.
+                            // In which case nothing is ever published, so onReceive never fires
+                            // TODO: This logic belongs somewhere else
+                                .onReceive(model.$countdownState, perform: { countdownState in
+                                    Self.log.info("Received Countdown state change: \(String(describing: countdownState))")
+                                    // Here is where we should do any actions when the countdown is reached
+                                    if countdownState == .triggering {
+                                        Self.log.debug("Camera Action after countdown")
+                                        model.cameraAction()
+                                    }
+                                })
+                        }
+
                         Spacer()
                         
                         flipCameraButton
@@ -164,33 +156,17 @@ struct CameraView: View {
                 }
                 
             }
-            .onChange(of: scenePhase) { newPhase in
-                Self.log.info("newPhase: \(String(describing: newPhase))")
-                switch newPhase {
-                case .background, .inactive:
-                    countdown.stop()
-                case .active:
-                    if AvoidStateChange.returningFromSystemDeletePrompt == false {
-                        Self.log.info("Countdown started")
-                        countdown.start()
-                    } else {
-                        Self.log.debug("Returning from System Delete, Keep current countdown, should work next try")
-                        // remove the old photo from the model so we don't have the old preview lying around.
-                        self.model.photo = nil
-                        AvoidStateChange.returningFromSystemDeletePrompt = false
-                    }
-                    
-                @unknown default:
-                    countdown.stop()
-                }
-                
+            .onDisappear {
+                print("Camera View Disappeared")
             }
         }
     }
 }
 
 struct CameraView_Previews: PreviewProvider {
+    static let dependencies = CameraModel.Dependencies()
+        
     static var previews: some View {
-        CameraView(countdown: Countdown())
+        CameraView(model: CameraModel(dependencies))
     }
 }

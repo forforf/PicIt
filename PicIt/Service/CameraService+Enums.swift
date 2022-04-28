@@ -25,8 +25,9 @@ extension CameraService {
         case configurationFailed
     }
     
-    enum CaptureMode: Int {
-        case photo = 0
-        case movie = 1
+    enum ActionState {
+        case notReady
+        case ready
+        case inUse
     }
 }

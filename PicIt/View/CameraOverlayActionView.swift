@@ -3,9 +3,9 @@
 import SwiftUI
 
 struct CameraOverlayActionView: View {
-    @Binding var countdownState: CountdownState
-    var doPause: NoArgClosure<Void>
-    var doRestart: NoArgClosure<Void>
+    let countdownState: CountdownState
+    let doPause: NoArgClosure<Void>
+    let doRestart: NoArgClosure<Void>
         
     var timer: some View {
         Image(systemName: "timer")
@@ -71,17 +71,17 @@ struct CameraOverlayActionView_Previews: PreviewProvider {
         Group {
             ZStack {
                 Color(.gray)
-                CameraOverlayActionView(countdownState: $inProgress, doPause: {}, doRestart: {})
+                CameraOverlayActionView(countdownState: .inProgress, doPause: {}, doRestart: {})
             }
         
             ZStack {
                 Color(.gray)
-                CameraOverlayActionView(countdownState: $ready, doPause: {}, doRestart: {})
+                CameraOverlayActionView(countdownState: .ready, doPause: {}, doRestart: {})
             }
             
             ZStack {
                 Color(.gray)
-                CameraOverlayActionView(countdownState: $other, doPause: {}, doRestart: {})
+                CameraOverlayActionView(countdownState: .undefined, doPause: {}, doRestart: {})
             }
         }
     }
