@@ -30,7 +30,6 @@
 		D74E273727AF197200992242 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E273627AF197200992242 /* Settings.swift */; };
 		D74E273927AF2D6700992242 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E273827AF2D6700992242 /* ContentView.swift */; };
 		D74E273D27B29FBC00992242 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D74E273C27B29FBC00992242 /* Assets.xcassets */; };
-		D74E274027B8709A00992242 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74E273F27B8709A00992242 /* CountdownView.swift */; };
 		D76EBDED27E8B8010062D59B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D76EBDEC27E8B8010062D59B /* SettingsView.swift */; };
 		D7752ECE27C3CC9300F3EB16 /* OutputHandlerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7752ECD27C3CC9300F3EB16 /* OutputHandlerView.swift */; };
 		D7752ED027C4231D00F3EB16 /* ThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7752ECF27C4231D00F3EB16 /* ThumbnailView.swift */; };
@@ -86,7 +85,6 @@
 		D74E273627AF197200992242 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		D74E273827AF2D6700992242 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D74E273C27B29FBC00992242 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		D74E273F27B8709A00992242 /* CountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownView.swift; sourceTree = "<group>"; };
 		D76EBDEC27E8B8010062D59B /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		D7752ECD27C3CC9300F3EB16 /* OutputHandlerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputHandlerView.swift; sourceTree = "<group>"; };
 		D7752ECF27C4231D00F3EB16 /* ThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailView.swift; sourceTree = "<group>"; };
@@ -217,7 +215,6 @@
 				D74E272D27AC30C700992242 /* CameraPreview.swift */,
 				D74E26F927AC2F1600992242 /* CameraView.swift */,
 				D74E273827AF2D6700992242 /* ContentView.swift */,
-				D74E273F27B8709A00992242 /* CountdownView.swift */,
 				D7752ECD27C3CC9300F3EB16 /* OutputHandlerView.swift */,
 				D7752ECF27C4231D00F3EB16 /* ThumbnailView.swift */,
 				D744A44E27E60FD800A7DE9F /* CameraOverlayView.swift */,
@@ -390,7 +387,6 @@
 				D744A44F27E60FD800A7DE9F /* CameraOverlayView.swift in Sources */,
 				D7752ECE27C3CC9300F3EB16 /* OutputHandlerView.swift in Sources */,
 				D76EBDED27E8B8010062D59B /* SettingsView.swift in Sources */,
-				D74E274027B8709A00992242 /* CountdownView.swift in Sources */,
 				D7ABD43927F0A4750072FB0E /* PicItLog.swift in Sources */,
 				D74E273927AF2D6700992242 /* ContentView.swift in Sources */,
 				D71C5661281029C000BABD72 /* Photo.swift in Sources */,
