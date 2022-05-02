@@ -681,11 +681,27 @@ extension CameraService: AVCaptureFileOutputRecordingDelegate {
         }
         
         if success {
+            // TODO: Save the file so it's sharable (make sure this is a sane approach)
+            let shareableDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+            guard let targetURL = shareableDir?.appendingPathComponent(outputFileURL.lastPathComponent) else { return }
+        
+            do {
+                if FileManager.default.fileExists(atPath: targetURL.path) {
+                    try FileManager.default.removeItem(at: targetURL)
+                }
+     
+                try FileManager.default.copyItem(at: outputFileURL, to: targetURL)
+     
+                self.shareItem = targetURL
+            } catch {
+                Self.log.error(error.localizedDescription)
+            }
             // TODO: DRY with PhotoCaputreProcesor.saveToPhotoLibrary
             //       Perhaps using enum to distinguish photo/video handling
             // Check the authorization status.
             PHPhotoLibrary.requestAuthorization { status in
                 if status == .authorized {
+
                     // Save the movie file to the photo library and cleanup.
                     PHPhotoLibrary.shared().performChanges({
                         let options = PHAssetResourceCreationOptions()
@@ -711,7 +727,7 @@ extension CameraService: AVCaptureFileOutputRecordingDelegate {
             // TODO: Is thumbnail appropriately sized?
             let thumbnail = generateThumbnail(url: outputFileURL)
             self.thumbnail = thumbnail
-            self.shareItem = outputFileURL
+//            self.shareItem = outputFileURL
             Self.log.debug("didFinishRecording saved mov to library and generated thumbnail url: \(String(describing: outputFileURL))")
         } else {
             cleanup()
