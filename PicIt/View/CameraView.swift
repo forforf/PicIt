@@ -130,16 +130,13 @@ struct CameraView: View {
                         Spacer()
                         
                         VStack {
-                            CameraCaptureButton(
-                                countdownTime: model.countdownTime,
-                                countdownState: model.countdownState,
-                                mediaMode: model.mediaMode,
-                                cameraAction: model.cameraAction)
+                            // TODO: Consider just passing the components of the model that are needed.
+                            //       namely: (countdownTime, countdownState, mediaMode, cameraAction)
+                            CameraCaptureButton(model: model)
                             // Note that countdown can be in a disabled state.
                             // In which case nothing is ever published, so onReceive never fires
                             // TODO: This logic belongs somewhere else
                                 .onReceive(model.$countdownState, perform: { countdownState in
-                                    Self.log.info("Received Countdown state change: \(String(describing: countdownState))")
                                     // Here is where we should do any actions when the countdown is reached
                                     if countdownState == .triggering {
                                         Self.log.debug("Camera Action after countdown")

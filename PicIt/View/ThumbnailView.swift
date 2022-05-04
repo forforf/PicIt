@@ -41,7 +41,7 @@ struct ThumbnailImageView: View {
 struct ThumbnailEmptyView: View {
     var body: some View {
         RoundedRectangle(cornerRadius: 10)
-            .foregroundColor(.yellow)
+            .foregroundColor(.picit.gray)
     }
 }
 
