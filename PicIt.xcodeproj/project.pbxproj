@@ -39,13 +39,13 @@
 		D7ABD43427EFA4ED0072FB0E /* TypeAlias.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7ABD43327EFA4ED0072FB0E /* TypeAlias.swift */; };
 		D7ABD43727EFA8A30072FB0E /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = D7ABD43627EFA8A30072FB0E /* .swiftlint.yml */; };
 		D7ABD43927F0A4750072FB0E /* PicItLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7ABD43827F0A4750072FB0E /* PicItLog.swift */; };
-		D7CBAC612821C01F00B9B9A0 /* ReadyIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CBAC602821C01F00B9B9A0 /* ReadyIndicatorView.swift */; };
-		D7CBAC632821C03000B9B9A0 /* InUseIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CBAC622821C03000B9B9A0 /* InUseIndicatorView.swift */; };
-		D7CBAC652821C03F00B9B9A0 /* NotReadyIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CBAC642821C03F00B9B9A0 /* NotReadyIndicatorView.swift */; };
-		D7CBAC692821C1E600B9B9A0 /* BaseIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CBAC682821C1E600B9B9A0 /* BaseIndicatorView.swift */; };
 		D7CBAC6B2822B37500B9B9A0 /* CountdownSweeperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CBAC6A2822B37500B9B9A0 /* CountdownSweeperView.swift */; };
 		D7CBAC6D2822C45A00B9B9A0 /* CameraButtonBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CBAC6C2822C45A00B9B9A0 /* CameraButtonBackgroundView.swift */; };
 		D7CBAC762822CEB400B9B9A0 /* Color+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CBAC752822CEB400B9B9A0 /* Color+Extensions.swift */; };
+		D7CBAC7C282462EA00B9B9A0 /* BaseIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CBAC78282462EA00B9B9A0 /* BaseIndicatorView.swift */; };
+		D7CBAC7D282462EA00B9B9A0 /* ReadyIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CBAC79282462EA00B9B9A0 /* ReadyIndicatorView.swift */; };
+		D7CBAC7E282462EA00B9B9A0 /* NotReadyIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CBAC7A282462EA00B9B9A0 /* NotReadyIndicatorView.swift */; };
+		D7CBAC7F282462EA00B9B9A0 /* InUseIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CBAC7B282462EA00B9B9A0 /* InUseIndicatorView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -101,13 +101,13 @@
 		D7ABD43327EFA4ED0072FB0E /* TypeAlias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeAlias.swift; sourceTree = "<group>"; };
 		D7ABD43627EFA8A30072FB0E /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		D7ABD43827F0A4750072FB0E /* PicItLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicItLog.swift; sourceTree = "<group>"; };
-		D7CBAC602821C01F00B9B9A0 /* ReadyIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadyIndicatorView.swift; sourceTree = "<group>"; };
-		D7CBAC622821C03000B9B9A0 /* InUseIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InUseIndicatorView.swift; sourceTree = "<group>"; };
-		D7CBAC642821C03F00B9B9A0 /* NotReadyIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotReadyIndicatorView.swift; sourceTree = "<group>"; };
-		D7CBAC682821C1E600B9B9A0 /* BaseIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseIndicatorView.swift; sourceTree = "<group>"; };
 		D7CBAC6A2822B37500B9B9A0 /* CountdownSweeperView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownSweeperView.swift; sourceTree = "<group>"; };
 		D7CBAC6C2822C45A00B9B9A0 /* CameraButtonBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraButtonBackgroundView.swift; sourceTree = "<group>"; };
 		D7CBAC752822CEB400B9B9A0 /* Color+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extensions.swift"; sourceTree = "<group>"; };
+		D7CBAC78282462EA00B9B9A0 /* BaseIndicatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseIndicatorView.swift; sourceTree = "<group>"; };
+		D7CBAC79282462EA00B9B9A0 /* ReadyIndicatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReadyIndicatorView.swift; sourceTree = "<group>"; };
+		D7CBAC7A282462EA00B9B9A0 /* NotReadyIndicatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotReadyIndicatorView.swift; sourceTree = "<group>"; };
+		D7CBAC7B282462EA00B9B9A0 /* InUseIndicatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InUseIndicatorView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -228,7 +228,6 @@
 			isa = PBXGroup;
 			children = (
 				D7CBAC6E2822C46900B9B9A0 /* CameraButton */,
-				D7CBAC5F2821C00800B9B9A0 /* Indicators */,
 				D74E272D27AC30C700992242 /* CameraPreview.swift */,
 				D74E26F927AC2F1600992242 /* CameraView.swift */,
 				D74E273827AF2D6700992242 /* ContentView.swift */,
@@ -241,26 +240,27 @@
 			path = View;
 			sourceTree = "<group>";
 		};
-		D7CBAC5F2821C00800B9B9A0 /* Indicators */ = {
-			isa = PBXGroup;
-			children = (
-				D7CBAC602821C01F00B9B9A0 /* ReadyIndicatorView.swift */,
-				D7CBAC622821C03000B9B9A0 /* InUseIndicatorView.swift */,
-				D7CBAC642821C03F00B9B9A0 /* NotReadyIndicatorView.swift */,
-				D7CBAC682821C1E600B9B9A0 /* BaseIndicatorView.swift */,
-			);
-			path = Indicators;
-			sourceTree = "<group>";
-		};
 		D7CBAC6E2822C46900B9B9A0 /* CameraButton */ = {
 			isa = PBXGroup;
 			children = (
+				D7CBAC77282462EA00B9B9A0 /* Indicators */,
 				D706FD5027FB363700A2C22F /* CameraCaptureButtonView.swift */,
 				D794C7D1280D978C00A24D25 /* MediaModeView+Extensions.swift */,
 				D7CBAC6A2822B37500B9B9A0 /* CountdownSweeperView.swift */,
 				D7CBAC6C2822C45A00B9B9A0 /* CameraButtonBackgroundView.swift */,
 			);
 			path = CameraButton;
+			sourceTree = "<group>";
+		};
+		D7CBAC77282462EA00B9B9A0 /* Indicators */ = {
+			isa = PBXGroup;
+			children = (
+				D7CBAC78282462EA00B9B9A0 /* BaseIndicatorView.swift */,
+				D7CBAC79282462EA00B9B9A0 /* ReadyIndicatorView.swift */,
+				D7CBAC7A282462EA00B9B9A0 /* NotReadyIndicatorView.swift */,
+				D7CBAC7B282462EA00B9B9A0 /* InUseIndicatorView.swift */,
+			);
+			path = Indicators;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -421,27 +421,27 @@
 				D74E26FA27AC2F1600992242 /* CameraView.swift in Sources */,
 				D7752ED227CE653100F3EB16 /* TimerPublishers.swift in Sources */,
 				D74E272E27AC30C700992242 /* CameraPreview.swift in Sources */,
+				D7CBAC7D282462EA00B9B9A0 /* ReadyIndicatorView.swift in Sources */,
 				D744A44F27E60FD800A7DE9F /* CameraOverlayView.swift in Sources */,
 				D7752ECE27C3CC9300F3EB16 /* OutputHandlerView.swift in Sources */,
+				D7CBAC7C282462EA00B9B9A0 /* BaseIndicatorView.swift in Sources */,
 				D7CBAC762822CEB400B9B9A0 /* Color+Extensions.swift in Sources */,
-				D7CBAC632821C03000B9B9A0 /* InUseIndicatorView.swift in Sources */,
 				D76EBDED27E8B8010062D59B /* SettingsView.swift in Sources */,
 				D7ABD43927F0A4750072FB0E /* PicItLog.swift in Sources */,
+				D7CBAC7F282462EA00B9B9A0 /* InUseIndicatorView.swift in Sources */,
 				D74E273927AF2D6700992242 /* ContentView.swift in Sources */,
 				D71C5661281029C000BABD72 /* Photo.swift in Sources */,
 				D74E272427AC2FC100992242 /* CameraService+Enums.swift in Sources */,
 				D7ABD43427EFA4ED0072FB0E /* TypeAlias.swift in Sources */,
-				D7CBAC692821C1E600B9B9A0 /* BaseIndicatorView.swift in Sources */,
 				D74E26F827AC2F1600992242 /* PicItApp.swift in Sources */,
-				D7CBAC652821C03F00B9B9A0 /* NotReadyIndicatorView.swift in Sources */,
 				D74E272227AC2F7C00992242 /* CameraService.swift in Sources */,
 				D74E272A27AC304400992242 /* PhotoCaptureProcessor.swift in Sources */,
 				D74E272827AC301900992242 /* ImageResizer.swift in Sources */,
 				D794C7D2280D978C00A24D25 /* MediaModeView+Extensions.swift in Sources */,
 				D7CBAC6B2822B37500B9B9A0 /* CountdownSweeperView.swift in Sources */,
-				D7CBAC612821C01F00B9B9A0 /* ReadyIndicatorView.swift in Sources */,
 				D744A45127E677AB00A7DE9F /* CameraOverlayActionView.swift in Sources */,
 				D74E273527AF18D100992242 /* Countdown.swift in Sources */,
+				D7CBAC7E282462EA00B9B9A0 /* NotReadyIndicatorView.swift in Sources */,
 				D74E272627AC2FE900992242 /* CameraService+Extensions.swift in Sources */,
 				D71C566328102A8E00BABD72 /* AlertError.swift in Sources */,
 				D706FD5127FB363700A2C22F /* CameraCaptureButtonView.swift in Sources */,
