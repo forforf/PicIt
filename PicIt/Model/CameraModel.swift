@@ -114,6 +114,15 @@ final class CameraModel: ObservableObject {
             }
             return newMode
         }
+        
+        func getActionState() -> CameraService.ActionState {
+            switch self {
+            case .photo(let state):
+                return state
+            case .video(let state):
+                return state
+            }
+        }
     }
     
     static let log = PicItSelfLog<CameraModel>.get()
@@ -165,29 +174,15 @@ final class CameraModel: ObservableObject {
         self.settings = dependencies.settings
         
         addSubscriptions()
+        self.mediaMode = MediaMode.updateActionState(currentMode: self.mediaMode, actionState: .ready)
      }
-    
-    // TODO: Fix. Preview layer freezes on reload if media mode is changed.
-    // TODO: This may not be in use anymore
-    func reset() {
-        subscriptions.removeAll()
-        countdown.reset()
-//        service.clearConfig()
-        settings = Dependencies.settingsProvider()
-        service = Dependencies.serviceProvider()
-        session = service.session
-        // TODO: Configure before or after setting media to ready?
-        addSubscriptions()
-        configure(media: mediaType, didConfigure: {
-            self.mediaMode = MediaMode.updateActionState(currentMode: self.mediaMode, actionState: .ready)
-        })
-        
-    }
     
     func resetMode() {
         countdown.reset()
         configure(media: mediaType, didConfigure: {
-            self.mediaMode = MediaMode.updateActionState(currentMode: self.mediaMode, actionState: .ready)
+            DispatchQueue.main.async {
+                self.mediaMode = MediaMode.updateActionState(currentMode: self.mediaMode, actionState: .ready)
+            }
         })
         
     }
@@ -198,11 +193,13 @@ final class CameraModel: ObservableObject {
     }
 
     func startVideoRecording() {
+        self.mediaMode = MediaMode.updateActionState(currentMode: self.mediaMode, actionState: .inUse)
         service.startVideoRecording()
     }
     
     func stopVideoRecording() {
         service.stopVideoRecording()
+        self.mediaMode = MediaMode.updateActionState(currentMode: self.mediaMode, actionState: .ready)
     }
     
     func capturePhoto() {
@@ -300,7 +297,6 @@ final class CameraModel: ObservableObject {
     private func addSubscriptions() {
         service.$mediaLocalId.sink { [weak self] (localId) in
             guard let id = localId else { return }
-            Self.log.debug("Created localId: \(id)")
             self?.mediaLocalId = id
         }
         .store(in: &self.subscriptions)
@@ -352,20 +348,22 @@ final class CameraModel: ObservableObject {
         self.settings.$mediaType.sink { [weak self] media in
             // TODO: Does this result in unnecessary renders if newMode == currentMode?
             let currentMode = self?.mediaMode
-            let newMode = MediaMode.updateMedia(currentMode: currentMode!, mediaType: media)
             
-            // TODO: Reset model if we change modes.
+            // If we have a new mode (i.e. changed from photo to video, it will be initialized in the .notReady state
+            let newMode = MediaMode.updateMedia(currentMode: currentMode!, mediaType: media)
             self?.mediaMode = newMode
-
-//            // TODO: Make this a separate subscription?  Also, figure out how to be it more readable
-//            // basically if we change the media type, we have to reset the media state
-//            if media == .photo && self?.mediaState1 != .photoReady(.photo) {
-//                self?.mediaState1 = PicItMediaState.photoReady(.photo)
-//            }
-//            if media == .video && self?.mediaState1 == .photoReady(.photo) {
-//                self?.mediaState1 = PicItMediaState.videoReady(.video)
-//            }
             self?.mediaType = media
+            
+            // If the new mode is in the .notReady state, reset it to get it in the .ready state.
+            if let actionState = self?.mediaMode.getActionState() {
+                switch actionState {
+                case .notReady:
+                    self?.resetMode()
+                default:
+                    break
+                }
+            }
+   
         }
         .store(in: &self.subscriptions)
         
@@ -373,11 +371,5 @@ final class CameraModel: ObservableObject {
             self?.startCountdownAt = start
         }
         .store(in: &self.subscriptions)
-        
-        self.mediaMode = MediaMode.updateActionState(currentMode: self.mediaMode, actionState: .ready)
     }
-    
-//    func withPhoto(completion: PhotoHandler) {
-//        service.withPhoto(completion: completion)
-//    }
 }

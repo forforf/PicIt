@@ -10,25 +10,25 @@ struct CameraOverlayActionView: View {
     var timer: some View {
         Image(systemName: "timer")
             .font(.system(size: 50, weight: .medium, design: .default))
-            .opacity(0.2)
+            .opacity(0.4)
     }
     
     var pauseImage: some View {
-        VStack {
+        ZStack {
             timer
             Image(systemName: "pause.fill")
-                .font(.system(size: 100, weight: .medium, design: .default))
-                .opacity(0.1)
+                .font(.system(size: 120, weight: .medium, design: .default))
+                .opacity(0.3)
         }
 
     }
     
     var playImage: some View {
-        VStack {
+        ZStack {
             timer
             Image(systemName: "play.fill")
-                .font(.system(size: 100, weight: .medium, design: .default))
-                .opacity(0.1)
+                .font(.system(size: 120, weight: .medium, design: .default))
+                .opacity(0.3)
         }
 
     }
@@ -63,26 +63,22 @@ struct CameraOverlayActionView: View {
 }
 
 struct CameraOverlayActionView_Previews: PreviewProvider {
-    @State static var inProgress: CountdownState = .inProgress
-    @State static var ready: CountdownState = .ready
-    @State static var other: CountdownState = .undefined
+    static let countdownStates: [CountdownState] = [.inProgress, .ready, .undefined]
     
     static var previews: some View {
         Group {
-            ZStack {
-                Color(.gray)
-                CameraOverlayActionView(countdownState: .inProgress, doPause: {}, doRestart: {})
-            }
-        
-            ZStack {
-                Color(.gray)
-                CameraOverlayActionView(countdownState: .ready, doPause: {}, doRestart: {})
-            }
-            
-            ZStack {
-                Color(.gray)
-                CameraOverlayActionView(countdownState: .undefined, doPause: {}, doRestart: {})
-            }
+                ZStack {
+                    Color(.gray)
+                    VStack {
+                        Divider()
+                        ForEach(countdownStates, id: \.self) { countdownState in
+                            CameraOverlayActionView(countdownState: countdownState, doPause: {}, doRestart: {})
+                            Rectangle().fill(.white).frame(height: 5)
+                        }
+
+                    }
+                    
+                }
         }
     }
 }
