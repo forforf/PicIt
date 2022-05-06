@@ -85,7 +85,7 @@ class Countdown: ObservableObject {
         }
     }
     
-    // Basically start, but with a cleaner type signature that uses the ,
+    // Basically start, but with a cleaner type signature
     // instead of (TimeInterval, TimeInterval, Double) -> Void, it is () -> Void
     func restart() {
         start()
