@@ -54,6 +54,7 @@ extension CameraModel {
             let referenceTimeProvider = { Date().timeIntervalSince1970 }
             let countdownFrom = Double(Settings.countdownStart)
             let interval = PicItSetting.interval
+            let countdownPublisher = TimerPublishers().countdownPublisher
         }
     }
 }

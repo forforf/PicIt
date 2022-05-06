@@ -6,6 +6,7 @@ import SwiftUI
 import os.log
 
 typealias ReferenceTimeProvider = () -> TimeInterval
+typealias IntervalMapPublisherClosure = (CountdownPublisherArgsProtocol) -> IntervalMapPublisher
 
 enum CountdownState: CaseIterable {
     case ready
@@ -20,6 +21,7 @@ protocol CountdownDefaultsProtocol {
     var referenceTimeProvider: ReferenceTimeProvider { get }
     var countdownFrom: Double { get }
     var interval: TimeInterval { get }
+    var countdownPublisher: IntervalMapPublisherClosure { get } // IntervalMapPublisherClosure is from TimerPublishers
 }
 
 // In most cases the client should be providing the defaults, but
@@ -28,6 +30,13 @@ struct CountdownFallbackDefaults: CountdownDefaultsProtocol {
     let referenceTimeProvider = { Date().timeIntervalSince1970 }
     let countdownFrom = 5.0
     let interval = 0.5
+    let countdownPublisher = TimerPublishers().countdownPublisher
+}
+
+struct CountdownPublisherArgs: CountdownPublisherArgsProtocol {
+    let countdownFrom: Double
+    let referenceTime: TimeInterval
+    let interval: TimeInterval? // fall back to default if not provided
 }
 
 // TODO: Rename "startAt" to referenceTime.
@@ -42,11 +51,13 @@ class Countdown: ObservableObject {
     @Published private(set) var state: CountdownState = .undefined
     
     private var cancellable: AnyCancellable?
-    private var timerPublishers = TimerPublishers()
     private var defaults: CountdownDefaultsProtocol
+    
+    private var countdownPublisher: IntervalMapPublisherClosure
     
     init(defaults: CountdownDefaultsProtocol = CountdownFallbackDefaults()) {
         self.defaults = defaults
+        self.countdownPublisher = defaults.countdownPublisher // syntactic sugar
         state = .ready
         Self.log.debug("Countdown Initialized to ready state")
     }
@@ -75,7 +86,8 @@ class Countdown: ObservableObject {
         switch state {
         case .ready:
             Self.log.debug("Starting Countdown from \(countdownFrom)")
-            cancellable = timerPublishers.countdownPublisher(countdownFrom: countdownFrom, referenceTime: referenceTime, interval: interval)
+            let countdownArgs = CountdownPublisherArgs(countdownFrom: countdownFrom, referenceTime: referenceTime, interval: interval)
+            cancellable = countdownPublisher(countdownArgs)
                 .sink { [weak self] time in
                     self?.time = time
                     self?.updateStateFromTimer(countdownTimer: time, countdownFrom: countdownFrom)

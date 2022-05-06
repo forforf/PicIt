@@ -5,7 +5,12 @@ import Combine
 typealias ConnectedTimerPublisher = Publishers.Autoconnect<Timer.TimerPublisher>
 typealias IntervalPublisher = Publishers.MapKeyPath<ConnectedTimerPublisher, TimeInterval>
 typealias IntervalMapPublisher = Publishers.Map<IntervalPublisher, TimeInterval>
-typealias IntervalMapPublisherClosure = (TimeInterval) -> IntervalMapPublisher
+
+protocol CountdownPublisherArgsProtocol {
+    var countdownFrom: Double { get }
+    var referenceTime: TimeInterval { get }
+    var interval: TimeInterval? { get }
+}
 
 struct TimerPublishers {
     static let defaultInterval = 0.5
@@ -27,10 +32,11 @@ struct TimerPublishers {
     }
     
     // Converts an elapsedTime into a countdown timer, given `countdownFrom`
-    func countdownPublisher(countdownFrom: Double, referenceTime: TimeInterval, interval: TimeInterval = defaultInterval) -> IntervalMapPublisher {
-        return self.elapsedPublisherClosure(referenceTime: referenceTime, interval: interval)
+    func countdownPublisher(args: CountdownPublisherArgsProtocol) -> IntervalMapPublisher {
+        let interval = args.interval ?? Self.defaultInterval
+        return self.elapsedPublisherClosure(referenceTime: args.referenceTime, interval: interval)
             .map({elapsedTime in
-                return countdownFrom - elapsedTime
+                return args.countdownFrom - elapsedTime
             })
     }
 }
