@@ -6,7 +6,7 @@ import SwiftUI
 import os.log
 
 typealias ReferenceTimeProvider = () -> TimeInterval
-typealias IntervalMapPublisherClosure = (CountdownPublisherArgsProtocol) -> IntervalMapPublisher
+typealias IntervalMapPublisherClosure = (CountdownPublisherArgsProtocol) -> AnyPublisher<Double, Never>
 
 enum CountdownState: CaseIterable {
     case ready
@@ -17,7 +17,7 @@ enum CountdownState: CaseIterable {
     case undefined
 }
 
-protocol CountdownDefaultsProtocol {
+protocol CountdownDependenciesProtocol {
     var referenceTimeProvider: ReferenceTimeProvider { get }
     var countdownFrom: Double { get }
     var interval: TimeInterval { get }
@@ -26,7 +26,7 @@ protocol CountdownDefaultsProtocol {
 
 // In most cases the client should be providing the defaults, but
 // these fallbacks can provide a starting point and guide.
-struct CountdownFallbackDefaults: CountdownDefaultsProtocol {
+struct CountdownDependencies: CountdownDependenciesProtocol {
     let referenceTimeProvider = { Date().timeIntervalSince1970 }
     let countdownFrom = 5.0
     let interval = 0.5
@@ -51,11 +51,11 @@ class Countdown: ObservableObject {
     @Published private(set) var state: CountdownState = .undefined
     
     private var cancellable: AnyCancellable?
-    private var defaults: CountdownDefaultsProtocol
+    private var defaults: CountdownDependenciesProtocol
     
     private var countdownPublisher: IntervalMapPublisherClosure
     
-    init(defaults: CountdownDefaultsProtocol = CountdownFallbackDefaults()) {
+    init(defaults: CountdownDependenciesProtocol = CountdownDependencies()) {
         self.defaults = defaults
         self.countdownPublisher = defaults.countdownPublisher // syntactic sugar
         state = .ready

@@ -27,7 +27,7 @@ class AvoidStateChange {
 typealias PhotoChangeCompletion = (Bool, Error?) -> Void
 
 protocol CameraModelDependenciesProtocol {
-    var countdownDefaults: CountdownDefaultsProtocol { get }
+    var countdownDefaults: CountdownDependenciesProtocol { get }
     var countdown: Countdown { get }
     var settings: Settings { get }
     var service: CameraService { get }
@@ -41,7 +41,7 @@ extension CameraModel {
         // We can use this as a way to "reset" those dependencies while keeping the model state
         public static func serviceProvider() -> CameraService { CameraService() }
         public static func settingsProvider() -> Settings { Settings() }
-        public let countdownDefaults: CountdownDefaultsProtocol = Self.CountdownDefaults()
+        public let countdownDefaults: CountdownDependenciesProtocol = Self.CountdownDefaults()
         public let countdown = Countdown()
         public let settings = Self.settingsProvider()
         public let service = Self.serviceProvider()
@@ -50,7 +50,7 @@ extension CameraModel {
         // 1. Allows the usage of Self
         // 2. Avoids polluting the CameraModel (or higher) namespace with a very specific use case.
         // swiftlint:disable:next nesting
-        struct CountdownDefaults: CountdownDefaultsProtocol {
+        struct CountdownDefaults: CountdownDependenciesProtocol {
             let referenceTimeProvider = { Date().timeIntervalSince1970 }
             let countdownFrom = Double(Settings.countdownStart)
             let interval = PicItSetting.interval
