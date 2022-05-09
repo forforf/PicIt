@@ -70,10 +70,10 @@ class Countdown: ObservableObject {
         case .ready:
             break
         case .inProgress, .triggering, .stopped, .complete:
-            state = .ready
+            updateState(.ready)
         case .undefined:
             Self.log.warning("Resetting from an undefined state")
-            state = .ready
+            updateState(.ready)
         }
     }
     
@@ -86,7 +86,7 @@ class Countdown: ObservableObject {
         Self.log.debug("Countdown attempting to start from state: \(String(describing: self.state))")
         cancellable?.cancel() // just in case
         switch state {
-        case .ready:
+        case .ready, .stopped, .complete:
             Self.log.debug("Starting Countdown from \(countdownFrom)")
             let countdownArgs = CountdownPublisherArgs(countdownFrom: countdownFrom, referenceTime: referenceTime, interval: interval)
             cancellable = countdownPublisher(countdownArgs)
@@ -107,22 +107,27 @@ class Countdown: ObservableObject {
     
     func stop() {
         Self.log.debug("stopping countdown")
-        self.state = .stopped
-        self.cancellable?.cancel()
-        // self.state = .complete
+        updateState(.stopped)
+        cancellable?.cancel()
     }
     
     func complete() {
         Self.log.debug("Countdown complete")
         self.cancellable?.cancel()
-        self.state = .complete
+        updateState(.complete)
+    }
+    
+    // Centralize state updates
+    private func updateState(_ newState: CountdownState) {
+        Self.log.debug("State changing: \(state) -> \(newState)")
+        state = newState
     }
     
     private func updateStateFromTimer(countdownTimer: TimeInterval, countdownFrom: Double) {
         if countdownTimer <= 0.0 {
             switch state {
             case .inProgress:
-                self.state = .triggering
+                updateState(.triggering)
             case .triggering:
                 complete()
             case .complete, .stopped, .undefined:
@@ -131,10 +136,10 @@ class Countdown: ObservableObject {
                 Self.log.warning("Countdown ended without ever being .inProgress")
             }
         } else if countdownTimer <= countdownFrom {
-            self.state = .inProgress
+            updateState(.inProgress)
         } else {
             // countdownTimer > countdownFrom (not sure how we got here)
-            self.state = .undefined
+            updateState(.undefined)
         }
     }
 }
