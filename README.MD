@@ -27,8 +27,10 @@ Modified from the open sourced (MIT Licensed) [SwiftCamera](https://github.com/r
 
 ## General Learnings
 * SwiftUI development
-  * Using Observables and reactive programming techniques (I was already familiar with reactive programming)
+  * Using Combine Observables and reactive programming techniques (I was already familiar with reactive programming)
   * Managing view state, and inter-view communication
+* SwiftUI Testing (XCTest)
+  * Testing Combine, specifically using XCTestExpectation
 
 ## Tap on Thumbnail
 
@@ -55,7 +57,7 @@ Unfortunately, one consequence of deleting was that returning to the main app sc
 ## Timer Publisher
 
 Still work in progress. Started with Timer in view, moved it to a model, but the original model was very basic and monolithic. Essentially it could only do countdowns.
-Current model has split out the various timer observal logic into a separate file/struct: `TimerPublishers.swift`. The observables in `TimerPublishers` have been decomposed into basic building blocks:
+Current model has split out the various timer observable logic into a separate file/struct: `TimerPublishers.swift`. The observables in `TimerPublishers` have been decomposed into basic building blocks:
 * `intervalPublisher`: An observable that publishes a unix timestamp on a given interval (thin wrapper around combine's `Timer.Publish`)
 * `elapsedPublisherClosure`: A closure that returns an observable that provides the elapsedTime given the start time at periodic intervals (intervals come from `intervalPublisher`)
 * `countdownPublisher`: An observable that generates a countdown given a the countdown to start from and a time the countdown started (usually immediate). Uses `elapsedPUblisherClosure`. 
@@ -92,3 +94,47 @@ class Foo {
 ```
 
 I'd be happier if I could figure out an elegant way to skip the `<Foo>` generics, but I'm not sure it's possible given that typing is static at compile time.
+
+## Style Preferences
+
+### Type Aliasing for Closures
+
+#### Prefer type alias for closures
+
+Generic Closure
+```swift
+typealias Closure<ARG, RET> = (ARG) -> RET
+
+...
+
+let foo: Closure<Double, Int>
+```
+
+Closures without arguments
+```swift
+typealias NoArgClosure<T> = () -> T
+
+...
+
+let foo: NoArgClosure<Void>
+
+
+# Optional (I'm not currently doing this, as I think NoArgClosure<Void> is sufficiently concise and readable )
+typealias VoidClosure = () -> Void
+let foo: VoidClosure
+```
+
+#### No arrows in argument types
+Keep func signatures clean with type aliasing. This is somewhat repetitive to the above, but reiterated because I abhor complicated typing inline with function declarations.
+
+Don't do this
+```swift
+func foo(fooArgs: (closureBarArgs: BarArgsType) -> BarReturnType) -> FooReturnType { ... }
+```
+
+Do this instead:
+```swift
+typealias BarClosure = (BarArgsType) -> BarReturnType
+...
+func foo(fooArgs: BarClosure) -> FooReturnType { ... }
+```

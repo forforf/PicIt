@@ -54,7 +54,7 @@ extension CameraModel {
             let referenceTimeProvider = { Date().timeIntervalSince1970 }
             let countdownFrom = Double(Settings.countdownStart)
             let interval = PicItSetting.interval
-            let countdownPublisher = TimerPublishers().countdownPublisher
+            let countdownPublisherClosure = TimerPublishers().countdownPublisher
         }
     }
 }
@@ -228,7 +228,9 @@ final class CameraModel: ObservableObject {
     }
     
     func countdownStop() {
-        countdown.stop()
+        DispatchQueue.main.async {
+            self.countdown.stop()
+        }
     }
 
     func cameraAction() {
