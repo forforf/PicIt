@@ -5,28 +5,23 @@ import Combine
 
 @testable import PicIt
 
+// Allows for cleaner func signatures
 typealias Closure<ARG, RET> = (ARG) -> RET
-// typealias ExpectationCompletion = (Subscribers.Completion<Never>) -> Void
 
-// TODO: create new helper function countdown that does not go below 0 ... this will leave the state as .inProgress (so we can test that)
-//       Once we have a couple functions, DRY it up so that we can test various countdown scenarios.
 class CountdownTests: XCTestCase {
         
-    private var countdownBasic: Countdown!
+    private var countdownComplete: Countdown!
     
-    // This value is appended to the countdown, it signals that we've finished all countdown related work
-    // I would MUCH rather use a copletion handler, but haven't figured out how to do that for a published variable
-    // in an ObservableObject.
-//    private static let markEndOfCountdown = -999.0
     private var cancellables: Set<AnyCancellable> = []
     
     override func setUpWithError() throws {
         super.setUp()
         
-        // Setup a basic countdown instance
+        // Setup a countdown instance that can complete a full countdown
         let countdownListBasic = makeCountdownList(interval: MockDefaults.interval, countdownFrom: MockDefaults.countdownFrom)
-        let countdownDependenciesBasic = makeDependencies(countdownListBasic)
-        countdownBasic = Countdown(countdownDependenciesBasic)
+        let mockCompleteCountdown = MockFactory.addEndMarker(countdownListBasic)
+        let countdownDependenciesComplete = makeDependencies(mockCompleteCountdown)
+        countdownComplete = Countdown(countdownDependenciesComplete)
     }
     
     override func tearDownWithError() throws {
@@ -36,36 +31,76 @@ class CountdownTests: XCTestCase {
     // Instantiation Tests
     func test_init_stateIsReady() throws {
         XCTAssertEqual(Countdown().state, .ready) // Test default initialization
-        XCTAssertEqual(countdownBasic.state, .ready)
+        XCTAssertEqual(countdownComplete.state, .ready)
     }
     
     func test_init_timeIsInitialized() throws {
         XCTAssertEqual(Countdown().time, Countdown.initialCountdownTime) // Test default initialization
-        XCTAssertEqual(countdownBasic.time, Countdown.initialCountdownTime)
+        XCTAssertEqual(countdownComplete.time, Countdown.initialCountdownTime)
     }
         
     // countdown behavior tests
+    func test_reset_countdownNeverSubscribed() throws {
+        countdownComplete.reset()
+        XCTAssertEqual(countdownComplete.state, .ready)
+        XCTAssertEqual(countdownComplete.time, Countdown.initialCountdownTime)
+    }
+    
+    func test_reset_countdownCompleted() throws {
+        let expectation = XCTestExpectation(description: "Wait for last countdown value")
+        
+        // Fulfills expecation
+        timeSubscriberWithExpectation(countdownComplete, expectation: expectation)
+        
+        countdownComplete.start()
+        wait(for: [expectation], timeout: 0.1)
+        countdownComplete.reset()
+        
+        XCTAssertEqual(countdownComplete.state, .ready)
+        XCTAssertEqual(countdownComplete.time, Countdown.initialCountdownTime)
+    }
+    
+    func test_reset_countdownStateUndefined() throws {
+        let deps = makeDependencies([])
+        let countdownWithStateUndefined = Countdown(deps, initialState: .undefined)
+        XCTAssertEqual(CountdownState.undefined, countdownWithStateUndefined.state)
+        countdownWithStateUndefined.reset()
+        XCTAssertEqual(countdownWithStateUndefined.state, .ready)
+    }
+    
+    func test_reset_countdownStateValidToReset() throws {
+        let validStates: [CountdownState] = [.inProgress, .triggering, .stopped, .complete]
+        validStates.forEach { state in
+            let deps = makeDependencies([])
+            let countdownWithState = Countdown(deps, initialState: state)
+            XCTAssertEqual(state, countdownWithState.state)
+            countdownWithState.reset()
+            XCTAssertEqual(countdownWithState.state, .ready)
+        }
+    }
+    
     func test_start_timeIsUpdated() throws {
         self.continueAfterFailure = false
         let expectation = XCTestExpectation(description: "Wait for last countdown value")
 
+        // We need access to countdownList to verify publishing countdown time is working
         let countdownList = makeCountdownList(interval: MockDefaults.interval, countdownFrom: MockDefaults.countdownFrom)
         let mockCompleteCountdown = MockFactory.addEndMarker(countdownList)
         let countdownDependencies = makeDependencies(mockCompleteCountdown)
-        let countdown = Countdown(countdownDependencies)
+        let countdownComplete = Countdown(countdownDependencies)
         
         var expectedCountdownTimes = expectedCountdownComplete(countdownList,
                                                                initVal: Countdown.initialCountdownTime,
                                                                endMarker: CountdownTests.markEndOfCountdown)
         
-        timeSubscriberWithExpectation(countdown, expectation: expectation) { time in
+        timeSubscriberWithExpectation(countdownComplete, expectation: expectation) { time in
             // remove elements from the expected array and compare to actual published value
             let expectedCountdownTime = expectedCountdownTimes.isEmpty ? nil : expectedCountdownTimes.removeFirst()
             XCTAssertNotNil(expectedCountdownTime)
             XCTAssertEqual(expectedCountdownTime!, time, accuracy: 0.01) // compare to published value
         }
         
-        countdown.start()
+        countdownComplete.start()
         wait(for: [expectation], timeout: 0.1)
     }
     
@@ -88,7 +123,7 @@ class CountdownTests: XCTestCase {
         }
         
         countdown.$state
-            .removeDuplicates() // Remove duplicates to get unique states chnages
+            .removeDuplicates() // Remove duplicates to get unique state changes
             .sink { state in receivedStates.append(state) }
             .store(in: &cancellables)
         
@@ -118,7 +153,7 @@ class CountdownTests: XCTestCase {
         }
         
         countdown.$state
-            .removeDuplicates() // Remove duplicates to get unique states chnages
+            .removeDuplicates() // Remove duplicates to get unique state changes
             .sink { state in receivedStates.append(state) }
             .store(in: &cancellables)
         
@@ -129,27 +164,24 @@ class CountdownTests: XCTestCase {
     }
     
     func test_start_stateIsUpdatedOnCompleteCountdown() throws {
-        let countdownList = makeCountdownList(interval: MockDefaults.interval, countdownFrom: MockDefaults.countdownFrom)
-        let mockCompleteCountdown = MockFactory.addEndMarker(countdownList)
-        let countdownDependencies = makeDependencies(mockCompleteCountdown)
-        let countdown = Countdown(countdownDependencies)
+        let expectation = XCTestExpectation(description: "Wait for last countdown value")
         
         var receivedStates: [CountdownState] = []
-        let expectation = XCTestExpectation(description: "Wait for last countdown value")
+        
         // TODO: This test is failing, because Countdown behavior needs to change
         let expectedCountdownStates: [CountdownState] = [.ready, .inProgress, .triggering, .complete]
   
         // Fulfills expecation
-        timeSubscriberWithExpectation(countdown, expectation: expectation)
+        timeSubscriberWithExpectation(countdownComplete, expectation: expectation)
         
-        countdown.$state
+        countdownComplete.$state
             .removeDuplicates() // Remove duplicates to get unique states chnages
             .sink { state in
             receivedStates.append(state)
         }
         .store(in: &cancellables)
         
-        countdown.start()
+        countdownComplete.start()
         wait(for: [expectation], timeout: 0.1)
         
         XCTAssertEqual(expectedCountdownStates, receivedStates)
@@ -158,12 +190,19 @@ class CountdownTests: XCTestCase {
         print("Received: \(String(describing: receivedStates))")
     }
     
-    func test_reset_countdownNeverSubscribed() throws {
-        countdownBasic.reset()
-        XCTAssertEqual(countdownBasic.state, .ready)
-        XCTAssertEqual(countdownBasic.time, Countdown.initialCountdownTime)
+    func test_stop() throws {
+        countdownComplete.stop()
+        XCTAssertEqual(countdownComplete.state, .stopped)
     }
-         
+
+    func test_complete() throws {
+        countdownComplete.complete()
+        XCTAssertEqual(countdownComplete.state, .complete)
+    }
+}
+
+// Helpers for setting up a Subscriber to exercise the observable
+extension CountdownTests {
     private func timeSubscriber(_ countdown: Countdown, perform: Closure<Double, Void>? = nil) {
         countdown.$time.sink { time in
             perform?(time)
@@ -201,7 +240,7 @@ extension CountdownTests {
         wrappedList.append(endMarker)
         return wrappedList
     }
-    
+        
     struct MockDefaults {
         static let referenceTimeClosure = { Date(timeIntervalSinceReferenceDate: 0.0).timeIntervalSince1970}
         static let countdownFrom = 5.5
@@ -210,6 +249,9 @@ extension CountdownTests {
 
     struct MockFactory {
         
+        // Appends a magic number to the countdown, it signals that we've finished all countdown related work
+        // I would MUCH rather use a combine completion handler, but haven't figured out how to do that for a published property
+        // in an ObservableObject.
         static func addEndMarker(_ countdownList: [Double]) -> [Double] {
             return countdownList + [CountdownTests.markEndOfCountdown]
         }
@@ -235,13 +277,8 @@ extension CountdownTests {
             )
         }
 
-        
         static func countdownClosure(_ countdownList: [Double]) -> CountdownPublisherClosure {
             return { _ in countdownList.publisher.eraseToAnyPublisher() }
         }
-        
-//        static func countdownPublishedListComplete(_ countdownList: [Double]) -> [Double] {
-//            return wrapCountdownList(countdownList, initVal: Countdown.initialCountdownTime, endMarker: CountdownTests.markEndOfCountdown)
-//        }
     }
 }

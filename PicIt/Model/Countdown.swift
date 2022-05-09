@@ -51,15 +51,16 @@ class Countdown: ObservableObject {
     static let initialCountdownTime = 0.0
     
     @Published private(set) var time = Countdown.initialCountdownTime
-    @Published private(set) var state: CountdownState = .ready
+    @Published private(set) var state: CountdownState
     
     private var cancellable: AnyCancellable?
     private var dependencies: CountdownDependenciesProtocol
     
     private var countdownPublisher: CountdownPublisherClosure
     
-    init(_ deps: CountdownDependenciesProtocol = CountdownDependencies()) {
+    init(_ deps: CountdownDependenciesProtocol = CountdownDependencies(), initialState: CountdownState = .ready) {
         self.dependencies = deps
+        self.state = initialState
         self.countdownPublisher = deps.countdownPublisherClosure // syntactic sugar
         Self.log.debug("Countdown Initialized")
     }
@@ -75,6 +76,7 @@ class Countdown: ObservableObject {
             Self.log.warning("Resetting from an undefined state")
             updateState(.ready)
         }
+        time = Countdown.initialCountdownTime
     }
     
     func start(_ countdownFrom: Double? = nil,
