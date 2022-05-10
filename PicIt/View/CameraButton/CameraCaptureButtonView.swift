@@ -45,10 +45,6 @@ struct CameraCaptureButton: View {
                         isRunning: $countdownIsRunning,
                         timer: $timer)
                     
-                    // TODO: Tweak countdownState, need state where timer is ready to restart, but animation is still shown
-                    //       Currently, .ready is the only valid state to start timer, but sometimes we want to show the animation
-                    //       (like when the countdown is paused), but other times we don't (like after it completes)
-                    //       One possible option is to allow stopped and complete to be valid "ready" states.
                         .onReceive(model.$countdownTime) { timer = $0 ?? 0.0 }
                         .onReceive(model.$countdownState) { state in
                             mediaModeView = AnyView(model.mediaMode.indicatorView())
@@ -63,9 +59,14 @@ struct CameraCaptureButton: View {
                                 countdownIsRunning = false
                             case .triggering:
                                 scaleAmount = 2.0
-                            default:
+                            case .ready, .complete:
                                 scaleAmount = 1.0
-                                showCountdownAnimation = true // TODO: Change to false once .stopped does not change to .ready
+                                showCountdownAnimation = false
+                                countdownIsRunning = false
+                            case .undefined, .none:
+                                // TODO: Gray out
+                                scaleAmount = 0.5
+                                showCountdownAnimation = false
                                 countdownIsRunning = false
                             }
                         }

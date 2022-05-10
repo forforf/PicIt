@@ -46,6 +46,7 @@
 		D7CBAC7D282462EA00B9B9A0 /* ReadyIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CBAC79282462EA00B9B9A0 /* ReadyIndicatorView.swift */; };
 		D7CBAC7E282462EA00B9B9A0 /* NotReadyIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CBAC7A282462EA00B9B9A0 /* NotReadyIndicatorView.swift */; };
 		D7CBAC7F282462EA00B9B9A0 /* InUseIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CBAC7B282462EA00B9B9A0 /* InUseIndicatorView.swift */; };
+		D7CBAC822825B87700B9B9A0 /* CountdownTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CBAC812825B87700B9B9A0 /* CountdownTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -108,6 +109,7 @@
 		D7CBAC79282462EA00B9B9A0 /* ReadyIndicatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReadyIndicatorView.swift; sourceTree = "<group>"; };
 		D7CBAC7A282462EA00B9B9A0 /* NotReadyIndicatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotReadyIndicatorView.swift; sourceTree = "<group>"; };
 		D7CBAC7B282462EA00B9B9A0 /* InUseIndicatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InUseIndicatorView.swift; sourceTree = "<group>"; };
+		D7CBAC812825B87700B9B9A0 /* CountdownTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,6 +201,7 @@
 		D74E270727AC2F1700992242 /* PicItTests */ = {
 			isa = PBXGroup;
 			children = (
+				D7CBAC802825B84C00B9B9A0 /* Model */,
 				D74E270827AC2F1700992242 /* PicItTests.swift */,
 			);
 			path = PicItTests;
@@ -261,6 +264,14 @@
 				D7CBAC7B282462EA00B9B9A0 /* InUseIndicatorView.swift */,
 			);
 			path = Indicators;
+			sourceTree = "<group>";
+		};
+		D7CBAC802825B84C00B9B9A0 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				D7CBAC812825B87700B9B9A0 /* CountdownTests.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -457,6 +468,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D74E270927AC2F1700992242 /* PicItTests.swift in Sources */,
+				D7CBAC822825B87700B9B9A0 /* CountdownTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

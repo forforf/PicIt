@@ -6,6 +6,7 @@ import SwiftUI
 import os.log
 
 typealias ReferenceTimeProvider = () -> TimeInterval
+typealias CountdownPublisherClosure = (CountdownPublisherArgsProtocol) -> AnyPublisher<Double, Never>
 
 enum CountdownState: CaseIterable {
     case ready
@@ -16,18 +17,26 @@ enum CountdownState: CaseIterable {
     case undefined
 }
 
-protocol CountdownDefaultsProtocol {
+protocol CountdownDependenciesProtocol {
     var referenceTimeProvider: ReferenceTimeProvider { get }
     var countdownFrom: Double { get }
     var interval: TimeInterval { get }
+    var countdownPublisherClosure: CountdownPublisherClosure { get }
 }
 
 // In most cases the client should be providing the defaults, but
 // these fallbacks can provide a starting point and guide.
-struct CountdownFallbackDefaults: CountdownDefaultsProtocol {
-    let referenceTimeProvider = { Date().timeIntervalSince1970 }
-    let countdownFrom = 5.0
-    let interval = 0.5
+struct CountdownDependencies: CountdownDependenciesProtocol {
+    var referenceTimeProvider = { Date().timeIntervalSince1970 }
+    var countdownFrom = 5.0
+    var interval = 0.5
+    var countdownPublisherClosure = TimerPublishers().countdownPublisher
+}
+
+struct CountdownPublisherArgs: CountdownPublisherArgsProtocol {
+    let countdownFrom: Double
+    let referenceTime: TimeInterval
+    let interval: TimeInterval? // fall back to default if not provided
 }
 
 // TODO: Rename "startAt" to referenceTime.
@@ -38,17 +47,22 @@ struct CountdownFallbackDefaults: CountdownDefaultsProtocol {
 class Countdown: ObservableObject {
     static let log = PicItSelfLog<Countdown>.get()
     
-    @Published private(set) var time = 0.0
-    @Published private(set) var state: CountdownState = .undefined
+    // The initial value of the time property before any updates have been published by the underlying publisher
+    static let initialCountdownTime = 0.0
+    
+    @Published private(set) var time = Countdown.initialCountdownTime
+    @Published private(set) var state: CountdownState
     
     private var cancellable: AnyCancellable?
-    private var timerPublishers = TimerPublishers()
-    private var defaults: CountdownDefaultsProtocol
+    private var dependencies: CountdownDependenciesProtocol
     
-    init(defaults: CountdownDefaultsProtocol = CountdownFallbackDefaults()) {
-        self.defaults = defaults
-        state = .ready
-        Self.log.debug("Countdown Initialized to ready state")
+    private var countdownPublisher: CountdownPublisherClosure
+    
+    init(_ deps: CountdownDependenciesProtocol = CountdownDependencies(), initialState: CountdownState = .ready) {
+        self.dependencies = deps
+        self.state = initialState
+        self.countdownPublisher = deps.countdownPublisherClosure // syntactic sugar
+        Self.log.debug("Countdown Initialized")
     }
     
     func reset() {
@@ -57,25 +71,27 @@ class Countdown: ObservableObject {
         case .ready:
             break
         case .inProgress, .triggering, .stopped, .complete:
-            state = .ready
+            updateState(.ready)
         case .undefined:
             Self.log.warning("Resetting from an undefined state")
-            state = .ready
+            updateState(.ready)
         }
+        time = Countdown.initialCountdownTime
     }
     
     func start(_ countdownFrom: Double? = nil,
                interval: TimeInterval? = nil,
                referenceTime: TimeInterval? = nil) {
-        let interval = interval ?? defaults.interval
-        let referenceTime = referenceTime ?? defaults.referenceTimeProvider()
-        let countdownFrom = countdownFrom ?? defaults.countdownFrom
+        let interval = interval ?? dependencies.interval
+        let referenceTime = referenceTime ?? dependencies.referenceTimeProvider()
+        let countdownFrom = countdownFrom ?? dependencies.countdownFrom
         Self.log.debug("Countdown attempting to start from state: \(String(describing: self.state))")
         cancellable?.cancel() // just in case
         switch state {
-        case .ready:
+        case .ready, .stopped, .complete:
             Self.log.debug("Starting Countdown from \(countdownFrom)")
-            cancellable = timerPublishers.countdownPublisher(countdownFrom: countdownFrom, referenceTime: referenceTime, interval: interval)
+            let countdownArgs = CountdownPublisherArgs(countdownFrom: countdownFrom, referenceTime: referenceTime, interval: interval)
+            cancellable = countdownPublisher(countdownArgs)
                 .sink { [weak self] time in
                     self?.time = time
                     self?.updateStateFromTimer(countdownTimer: time, countdownFrom: countdownFrom)
@@ -85,39 +101,47 @@ class Countdown: ObservableObject {
         }
     }
     
-    // Basically start, but with a cleaner type signature that uses the ,
+    // Basically start, but with a cleaner type signature
     // instead of (TimeInterval, TimeInterval, Double) -> Void, it is () -> Void
     func restart() {
         start()
     }
     
     func stop() {
-        DispatchQueue.main.async {
-            Self.log.debug("stopping countdown from main thread")
-            self.state = .stopped
-            self.cancellable?.cancel()
-            self.state = .ready
-        }
+        Self.log.debug("stopping countdown")
+        updateState(.stopped)
+        cancellable?.cancel()
+    }
+    
+    func complete() {
+        Self.log.debug("Countdown complete")
+        self.cancellable?.cancel()
+        updateState(.complete)
+    }
+    
+    // Centralize state updates
+    private func updateState(_ newState: CountdownState) {
+        Self.log.debug("State changing: \(state) -> \(newState)")
+        state = newState
     }
     
     private func updateStateFromTimer(countdownTimer: TimeInterval, countdownFrom: Double) {
-        var newState = state
         if countdownTimer <= 0.0 {
-            if state == .inProgress {
-                newState = .triggering
-            }
-            if state == .triggering {
-                newState = .complete
-                // stop the countdown timer
-                stop()
-                newState = .ready
+            switch state {
+            case .inProgress:
+                updateState(.triggering)
+            case .triggering:
+                complete()
+            case .complete, .stopped, .undefined:
+                Self.log.warning("Countdown still running in state \(state)")
+            case .ready:
+                Self.log.warning("Countdown ended without ever being .inProgress")
             }
         } else if countdownTimer <= countdownFrom {
-            newState = .inProgress
+            updateState(.inProgress)
         } else {
             // countdownTimer > countdownFrom (not sure how we got here)
-            newState = .undefined
+            updateState(.undefined)
         }
-        self.state = newState
     }
 }
